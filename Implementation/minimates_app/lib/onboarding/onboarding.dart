@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:untitled1/onboarding/onboarding_controller.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
 
@@ -36,7 +34,9 @@ class OnBoardingScreen extends StatelessWidget {
           Positioned(
               top: TSizes.appBarHeight,
               right: TSizes.defaultSpace,
-              child: TextButton(onPressed: () => OnBoardingController.instance.skipPage(), child: const Text(
+              child: TextButton(onPressed: (){
+                OnBoardingController.instance.nextPage();
+              }, child: const Text(
                 'Skip',
                 style: TextStyle(
                 fontSize: 20,          // Set the desired font size (adjust as needed)
@@ -51,7 +51,9 @@ class OnBoardingScreen extends StatelessWidget {
               right: TSizes.defaultSpace,
               bottom: TSizes.spaceBottom,
               child: ElevatedButton(
-                  onPressed: () => OnBoardingController.instance.nextPage(),
+                  onPressed: (){
+                    OnBoardingController.instance.nextPage();
+                  },
                   style: ElevatedButton.styleFrom(shape: const CircleBorder(
                     side: BorderSide(
                       color: TColors.secondary, // Set the border color to accent

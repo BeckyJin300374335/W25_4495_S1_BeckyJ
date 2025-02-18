@@ -4,41 +4,7 @@
             "outputFile": "com.example.untitled1.app-mergeDebugResources-29:/values-be/values-be.xml",
             "map": [
                 {
-                    "source": "/Users/becky/.gradle/caches/transforms-3/bb5a5125e57e439427cd66fb993867a0/transformed/browser-1.4.0/res/values-be/values-be.xml",
-                    "from": {
-                        "startLines": "2,3,4,5",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "55,164,272,384",
-                        "endColumns": "108,107,111,106",
-                        "endOffsets": "159,267,379,486"
-                    },
-                    "to": {
-                        "startLines": "27,28,29,30",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "3018,3127,3235,3347",
-                        "endColumns": "108,107,111,106",
-                        "endOffsets": "3122,3230,3342,3449"
-                    }
-                },
-                {
-                    "source": "/Users/becky/.gradle/caches/transforms-3/bf6e19e94f397b7f6aca85702ae88592/transformed/jetified-play-services-basement-18.3.0/res/values-be/values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "141",
-                        "endOffsets": "336"
-                    },
-                    "to": {
-                        "startLines": "17",
-                        "startColumns": "4",
-                        "startOffsets": "1790",
-                        "endColumns": "145",
-                        "endOffsets": "1931"
-                    }
-                },
-                {
-                    "source": "/Users/becky/.gradle/caches/transforms-3/0d2c695a6e6c58e60b2dbf1207771648/transformed/jetified-play-services-base-18.0.1/res/values-be/values.xml",
+                    "source": "/Users/becky/.gradle/caches/transforms-3/86640dee15e6b7f59749ce6d18f526f9/transformed/jetified-play-services-base-18.0.1/res/values-be/values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -55,7 +21,24 @@
                     }
                 },
                 {
-                    "source": "/Users/becky/.gradle/caches/transforms-3/b2884dbf4ee3398b2907745768baeed2/transformed/core-1.13.1/res/values-be/values-be.xml",
+                    "source": "/Users/becky/.gradle/caches/transforms-3/e195532ecd16b1f656ccb83a416ac132/transformed/jetified-play-services-basement-18.3.0/res/values-be/values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "141",
+                        "endOffsets": "336"
+                    },
+                    "to": {
+                        "startLines": "17",
+                        "startColumns": "4",
+                        "startOffsets": "1790",
+                        "endColumns": "145",
+                        "endOffsets": "1931"
+                    }
+                },
+                {
+                    "source": "/Users/becky/.gradle/caches/transforms-3/4c9be0c5e40b6223a158bac62b6e349b/transformed/core-1.13.1/res/values-be/values-be.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -69,6 +52,23 @@
                         "startOffsets": "55,153,255,355,456,562,665,3454",
                         "endColumns": "97,101,99,100,105,102,120,100",
                         "endOffsets": "148,250,350,451,557,660,781,3550"
+                    }
+                },
+                {
+                    "source": "/Users/becky/.gradle/caches/transforms-3/9cece87db117552f4e585400b73369e3/transformed/browser-1.4.0/res/values-be/values-be.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,164,272,384",
+                        "endColumns": "108,107,111,106",
+                        "endOffsets": "159,267,379,486"
+                    },
+                    "to": {
+                        "startLines": "27,28,29,30",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "3018,3127,3235,3347",
+                        "endColumns": "108,107,111,106",
+                        "endOffsets": "3122,3230,3342,3449"
                     }
                 }
             ]

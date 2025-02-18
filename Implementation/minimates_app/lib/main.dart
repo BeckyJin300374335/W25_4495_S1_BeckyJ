@@ -5,6 +5,7 @@ import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/auth/main_page.dart';
 import 'package:untitled1/utils/theme/theme.dart';
 import 'package:get/get.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 import 'onboarding/onboarding.dart';
 
@@ -22,10 +23,20 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      themeMode: ThemeMode.system,
-      theme: TAppTheme.lightTheme,
-      darkTheme: TAppTheme.darkTheme,
+    return NeumorphicApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Neumorphic App',
+      themeMode: ThemeMode.light,
+      theme: NeumorphicThemeData(
+        baseColor: Color(0xFFFFFFFF),
+        lightSource: LightSource.top,
+        depth: 200,
+      ),
+      darkTheme: NeumorphicThemeData(
+        baseColor: Color(0xFF3E3E3E),
+        lightSource: LightSource.top,
+        depth: 6,
+      ),
       home: Main_Page(),
     );
   }

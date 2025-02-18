@@ -12,10 +12,10 @@
     </style></file><file name="background" path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/drawable/background.png" qualifiers="" type="drawable"/><file name="launch_background" path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/drawable/launch_background.xml" qualifiers="" type="drawable"/><file name="ic_launcher" path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" qualifiers="xxxhdpi-v4" type="mipmap"/><file name="ic_launcher" path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" qualifiers="xxhdpi-v4" type="mipmap"/><file name="android12splash" path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/drawable-night-mdpi/android12splash.png" qualifiers="night-mdpi-v8" type="drawable"/><file path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/values-night/styles.xml" qualifiers="night-v8"><style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         
         <item name="android:windowBackground">@drawable/launch_background</item>
-        <item name="android:forceDarkAllowed">false</item>
+        
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        
     </style><style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">?android:colorBackground</item>
     </style></file><file path="/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/values/styles.xml" qualifiers=""><style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">

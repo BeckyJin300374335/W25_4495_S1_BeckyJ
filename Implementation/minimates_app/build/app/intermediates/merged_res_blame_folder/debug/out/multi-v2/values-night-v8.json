@@ -6,6 +6,30 @@
                 {
                     "source": "/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/values-night/styles.xml",
                     "from": {
+                        "startLines": "3,-1",
+                        "startColumns": "4,-1",
+                        "startOffsets": "172,-1",
+                        "endLines": "11,-1",
+                        "endColumns": "12,-1",
+                        "endOffsets": "764,-1"
+                    },
+                    "to": {
+                        "startLines": "2,10",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,387",
+                        "endLines": "9,12",
+                        "endColumns": "12,12",
+                        "endOffsets": "382,551"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "/Users/becky/.gradle/daemon/8.3/com.example.untitled1.app-mergeDebugResources-29:/values-night-v8/values-night-v8.xml",
+            "map": [
+                {
+                    "source": "/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/src/main/res/values-night/styles.xml",
+                    "from": {
                         "startLines": "3,18",
                         "startColumns": "4,4",
                         "startOffsets": "172,1088",

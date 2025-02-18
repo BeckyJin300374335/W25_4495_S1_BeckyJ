@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:untitled1/consts/colors.dart';
 import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
@@ -97,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: custom_green, borderRadius: BorderRadius.circular(10)),
+              color: Colors.green, borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Login',
             style: TextStyle(

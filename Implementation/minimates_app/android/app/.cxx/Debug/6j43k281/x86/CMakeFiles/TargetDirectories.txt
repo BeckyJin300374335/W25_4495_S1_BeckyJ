@@ -1,0 +1,2 @@
+/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/.cxx/Debug/6j43k281/x86/CMakeFiles/edit_cache.dir
+/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/.cxx/Debug/6j43k281/x86/CMakeFiles/rebuild_cache.dir

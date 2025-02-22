@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/auth/main_page.dart';
+
 import 'package:untitled1/utils/theme/theme.dart';
 import 'package:get/get.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return NeumorphicApp(
       debugShowCheckedModeBanner: false,
-      title: 'Neumorphic App',
+      title: 'Minimates App',
       themeMode: ThemeMode.light,
       theme: NeumorphicThemeData(
         baseColor: Color(0xFFFFFFFF),

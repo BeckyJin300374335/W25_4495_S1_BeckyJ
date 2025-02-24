@@ -13,6 +13,7 @@ class PostWidget extends StatefulWidget {
 }
 class _PostWidgetState extends State<PostWidget> {
 
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -31,8 +32,8 @@ class _PostWidgetState extends State<PostWidget> {
                   topRight: Radius.circular(
                       15), // ✅ Rounded top right corner
                 ),
-                child: Image.asset(
-                  'assets/images/park1.jpg',
+                child: Image.network(
+                  widget._post.image,
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,

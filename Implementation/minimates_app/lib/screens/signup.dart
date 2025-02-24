@@ -1,8 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled1/data/auth_data.dart';
+import 'package:untitled1/screens/home.dart';
 import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
+
+import '../auth/auth_page.dart';
 
 class SignupScreen extends StatefulWidget {
   final VoidCallback show;
@@ -99,16 +102,29 @@ class _SignupScreenState extends State<SignupScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: GestureDetector(
-        onTap: () {
-          AuthenticationRemote()
-              .register(email.text, password.text, passwordConfirm.text);
+        onTap: () async{
+          try {
+            await AuthenticationRemote()
+                .register(email.text, password.text, passwordConfirm.text);
+
+            // ✅ Only navigate to login page if registration is successful
+            Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (BuildContext context) => Auth_Page(),
+            ));
+          } catch (e) {
+            // ✅ Show error if registration fails
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Signup failed: ${e.toString()}")),
+            );
+          }
+
         },
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: Colors.green, borderRadius: BorderRadius.circular(10)),
+              color: Color(0xFFF9AFA6), borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Sign Up',
             style: TextStyle(

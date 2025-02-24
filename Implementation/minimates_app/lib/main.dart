@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/auth/main_page.dart';
@@ -15,6 +16,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Activate Firebase App Check
+  await FirebaseAppCheck.instance.activate(
+    webProvider: ReCaptchaV3Provider('your-recaptcha-site-key'), // Required for web
+    androidProvider: AndroidProvider.playIntegrity, // Use Play Integrity for Android
+    appleProvider: AppleProvider.appAttest, // Use App Attest for iOS
+  );
+
   runApp(const MyApp());
 }
 
@@ -33,12 +42,14 @@ class MyApp extends StatelessWidget {
         lightSource: LightSource.top,
         depth: 200,
       ),
-      darkTheme: NeumorphicThemeData(
-        baseColor: Color(0xFF3E3E3E),
-        lightSource: LightSource.top,
-        depth: 6,
-      ),
-      home: Main_Page(),
+      // darkTheme: NeumorphicThemeData(
+      //   baseColor: Color(0xFF3E3E3E),
+      //   lightSource: LightSource.top,
+      //   depth: 6,
+      // ),
+      // home: OnBoardingScreen(),
+      // navigatorKey: Get.key,
+      home:Main_Page()
     );
   }
 }

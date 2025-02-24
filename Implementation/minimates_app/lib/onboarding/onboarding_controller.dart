@@ -4,7 +4,7 @@ import 'package:untitled1/auth/auth_page.dart';
 
 import '../screens/login.dart';
 
-class OnBoardingController extends GetxController {
+class OnBoardingController extends GetMaterialController {
   static OnBoardingController get instance =>
       Get.find(); //access an instance of OnboardingController
 
@@ -22,18 +22,19 @@ class OnBoardingController extends GetxController {
   } //jump to specific page
 
   void nextPage() {
-    if (currentPageIndex.value == 2) {
-      // Get.to(LoginPage());)
-      Get.off(() => Auth_Page());
+    if (currentPageIndex.value < 2) {  // ✅ Ensure only 3 pages exist
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
     } else {
-      int page = currentPageIndex.value + 1;
-      pageController.jumpToPage(page);
+      Get.offAll(() => Auth_Page()); // ✅ Ensure full reset to Auth Page
     }
   } //update current index & jump to next page
 
   void skipPage() {
-    // pageController.jumpToPage(2);
-    // currentPageIndex.value = 2;
-    Get.off(() => Auth_Page());
+    pageController.jumpToPage(2);
+    currentPageIndex.value = 2;
+
   } //update current index & jump to next page
 }

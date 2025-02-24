@@ -3,6 +3,8 @@ import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
 
+import 'home.dart';
+
 class LoginScreen extends StatefulWidget {
   final VoidCallback show;
   const LoginScreen(this.show, {super.key});
@@ -90,13 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
       child: GestureDetector(
         onTap: () {
           AuthenticationRemote().login(email.text, password.text);
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+            builder: (BuildContext context) => HomeScreen(),
+          ));
         },
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: Colors.green, borderRadius: BorderRadius.circular(10)),
+              color: Color(0xFFF9AFA6), borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Login',
             style: TextStyle(

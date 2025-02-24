@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/Users/becky/.gradle/caches/transforms-3/63242fa1d34244d5792fc9329ebda695/transformed/jetified-play-services-base-18.0.1/res/values-nb/values.xml",
+                    "source": "/Users/becky/.gradle/caches/transforms-3/2abafbca5b01ce5acab4a654df09de2a/transformed/jetified-play-services-base-18.1.0/res/values-nb/values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",

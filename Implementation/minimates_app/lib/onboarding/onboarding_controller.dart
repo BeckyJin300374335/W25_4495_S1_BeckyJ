@@ -28,7 +28,7 @@ class OnBoardingController extends GetMaterialController {
         curve: Curves.easeInOut,
       );
     } else {
-      Get.offAll(() => Auth_Page()); // ✅ Ensure full reset to Auth Page
+      // Get.offAll(() => Auth_Page()); // ✅ Ensure full reset to Auth Page
     }
   } //update current index & jump to next page
 

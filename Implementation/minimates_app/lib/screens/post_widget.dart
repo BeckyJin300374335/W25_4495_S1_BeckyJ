@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:untitled1/data/post.dart';
+import 'package:untitled1/data/data.dart';
 
 
 class PostWidget extends StatefulWidget {

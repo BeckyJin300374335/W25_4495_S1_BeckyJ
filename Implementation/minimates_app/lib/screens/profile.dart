@@ -1,210 +1,178 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:untitled1/screens/edit_profile.dart';
 import 'package:untitled1/data/auth_data.dart';
-import 'package:untitled1/screens/login.dart';
-
 import '../auth/auth_page.dart';
+import '../utils/constants/colors.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({super.key});
-
+class ProfileScreen extends StatefulWidget {
   @override
-  State<Profile> createState() => _ProfileState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileState extends State<Profile> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String userName = "Loading...";
-  String userEmail = "Loading...";
-  String profilePicUrl = "";
-
-  @override
-  void initState() {
-    super.initState();
-    fetchUserInfo();
-  }
-
-  /// Fetch user details from Firestore
-  void fetchUserInfo() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      DocumentSnapshot userDoc =
-      await _firestore.collection("users").doc(user.uid).get();
-
-      if (userDoc.exists) {
-        setState(() {
-          userName = userDoc['name'] ?? "Unknown";
-          userEmail = userDoc['email'] ?? "No Email";
-          profilePicUrl = userDoc['profilePic'] ?? "";
-        });
-      }
-    }
-  }
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _notificationsEnabled = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Set background color
+      backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black), // Back button
-          onPressed: () {
-            Navigator.pop(context); // Navigate back
-          },
-        ),
-        title: const Text(
-          'Profile',
-          style: TextStyle(
-            fontSize: 20, // Match your project font size
-            fontFamily: 'Poppins', // Replace with the actual font
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        backgroundColor: TColors.secondary,
         centerTitle: true,
+        title: Text(
+          'Profile',
+          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+      body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Picture & User Info
-            Center(
-              child: Column(
+            // Profile Header
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: TColors.secondary,
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  profilePicUrl.isNotEmpty
-                      ? CircleAvatar(
-                    radius: 50,
-                    backgroundImage: NetworkImage(profilePicUrl),
-                  )
-                      : CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Color(0xFFF9AFA6),
-                    child: Text(
-                      userName.isNotEmpty ? userName[0] : "U",
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontFamily: 'Poppins',
-                        color: Colors.white,
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage('assets/images/profile.jpg'),
                       ),
-                    ),
+                      SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Becky Jin',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 10),
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    userEmail,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      color: Colors.grey,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextButton(
+                  IconButton(
+                    icon: Icon(Icons.logout, color: Colors.white),
                     onPressed: () {
-                      // Navigate to Edit Profile Page
+                      AuthenticationRemote().logout();
+                      Navigator.of(context)
+                          .pushReplacement(MaterialPageRoute(builder: (context) => Auth_Page()));
                     },
-                    child: Text(
-                      "Edit Profile",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                        color: Color(0xFFF9AFA6),
+                  )
+                ],
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ProfileRow(title: 'Age', value: '30'),
+                  ProfileRow(title: 'Gender', value: 'Female'),
+                  ProfileRow(title: 'City', value: 'Jakarta'),
+                  ProfileRow(title: 'Email', value: 'freyajawardhana@email.com'),
+                  SizedBox(height: 10),
+                  ProfileRowWithTrailing(title: 'Preferences', trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)),
+                  ProfileRowWithTrailing(
+                    title: 'Notifications',
+                    trailing: Switch(
+                      value: _notificationsEnabled,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _notificationsEnabled = value;
+                        });
+                      },
+                      activeColor: TColors.secondary,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => EditProfileScreen()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: TColors.secondary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      ),
+                      child: Text(
+                        'Edit Profile',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 20),
-
-            // List of Options
-            ListTile(
-              title: Text(
-                "App Info",
-                style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-              ),
-              trailing: Icon(Icons.info_outline),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              title: Text(
-                "Terms & Conditions",
-                style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-              ),
-              trailing: Icon(Icons.rule),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              title: Text(
-                "Privacy & Policy",
-                style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-              ),
-              trailing: Icon(Icons.book_outlined),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              title: Text(
-                "Help",
-                style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-              ),
-              trailing: Icon(Icons.help_outline),
-              onTap: () {},
-            ),
-            Divider(),
-
-            Spacer(),
-
-            // Sign Out Button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 150),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    AuthenticationRemote().logout();
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (BuildContext context) {
-                      return Auth_Page();
-                    }));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                    Color(0xFFF9AFA6), // Same color as Login Page Button
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text(
-                    "Sign Out",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ProfileRow extends StatelessWidget {
+  final String title;
+  final String value;
+
+  ProfileRow({required this.title, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            value,
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProfileRowWithTrailing extends StatelessWidget {
+  final String title;
+  final Widget trailing;
+
+  ProfileRowWithTrailing({required this.title, required this.trailing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          trailing,
+        ],
       ),
     );
   }

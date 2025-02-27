@@ -1,6 +1,11 @@
+import 'dart:developer';
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/onboarding/onboarding_controller.dart';
+import 'package:untitled1/screens/home.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
 
 import '../utils/constants/colors.dart';
@@ -52,7 +57,12 @@ class OnBoardingScreen extends StatelessWidget {
               bottom: TSizes.spaceBottom,
               child: ElevatedButton(
                   onPressed: (){
-                    OnBoardingController.instance.nextPage();
+                    controller.nextPage();
+                    if (controller.currentPageIndex.value == 2) {
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (BuildContext context) => Auth_Page(),
+                      ));
+                    }
                   },
                   style: ElevatedButton.styleFrom(shape: const CircleBorder(
                     side: BorderSide(

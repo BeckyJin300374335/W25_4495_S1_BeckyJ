@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/auth/auth_page.dart';
+import 'package:untitled1/onboarding/onboarding.dart';
 import 'package:untitled1/screens/home.dart';
 import 'package:untitled1/screens/login.dart';
 import 'package:untitled1/screens/signup.dart';
@@ -17,7 +18,7 @@ class Main_Page extends StatelessWidget {
               if (FirebaseAuth.instance.currentUser != null) {
                 return HomeScreen();
               } else {
-                return Auth_Page();
+                return OnBoardingScreen();
               }
             }));
   }

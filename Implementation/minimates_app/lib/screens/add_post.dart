@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:untitled1/data/firestore.dart';
+import '../utils/constants/colors.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({super.key});
@@ -12,9 +13,12 @@ class AddPost extends StatefulWidget {
 
 class _AddPost extends State<AddPost> {
   final title = TextEditingController();
+  final desc = TextEditingController();
   final picker = ImagePicker();
-  FocusNode node = FocusNode();
+  FocusNode titleNode = FocusNode();
+  FocusNode descNode = FocusNode();
   File? _selectedImage;
+  Set<String> selectedFilters = {};
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +36,7 @@ class _AddPost extends State<AddPost> {
         title: const Text(
           'Create Post',
           style: TextStyle(
-            fontSize: 20,
-            fontFamily: 'Poppins',
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
@@ -46,15 +49,69 @@ class _AddPost extends State<AddPost> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Title Input Field
-            _titleInputField(),
-
+            _titleInputField('Enter title...', TextInputType.text, title, 1, titleNode),
             const SizedBox(height: 20),
-
+            _titleInputField(
+                'Enter description...', TextInputType.multiline, desc, 5, descNode),
+            const SizedBox(height: 20),
             // Image Upload Widget
             _imageUploadWidget(),
-
             const SizedBox(height: 20),
-
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              height: 40,
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: FutureBuilder(
+                  future: Firestore().tagList(),
+                  builder: (context, snapshot) {
+                    final tagList = snapshot.data;
+                    if (tagList != null) {
+                      return ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: tagList
+                            .map((tag) => GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedFilters
+                                  .contains(tag.name)
+                                  ? selectedFilters
+                                  .remove(tag.name)
+                                  : selectedFilters
+                                  .add(tag.name);
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 8),
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 5),
+                            decoration: BoxDecoration(
+                              color:
+                              selectedFilters.contains(tag.name)
+                                  ? TColors.secondary
+                                  : Colors.grey[300],
+                              borderRadius:
+                              BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              tag.name,
+                              style: TextStyle(
+                                color: selectedFilters
+                                    .contains(tag.name)
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ))
+                            .toList(),
+                      );
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  }),
+            ),
+            const SizedBox(height: 20),
             // Post Button
             _postButton(),
           ],
@@ -64,13 +121,17 @@ class _AddPost extends State<AddPost> {
   }
 
   /// **Title Input Field**
-  Widget _titleInputField() {
+  Widget _titleInputField(String hintText, TextInputType inputType,
+      TextEditingController controller, int maxLines, FocusNode node) {
     return TextField(
-      controller: title,
+      maxLines: maxLines,
+      controller: controller,
       focusNode: node,
+      keyboardType: inputType,
       decoration: InputDecoration(
-        hintText: 'Enter title...',
-        hintStyle: TextStyle(fontSize: 16, fontFamily: 'Poppins', color: Colors.grey),
+        hintText: hintText,
+        hintStyle: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
         filled: true,
         fillColor: Colors.grey[200],
         border: OutlineInputBorder(
@@ -78,7 +139,8 @@ class _AddPost extends State<AddPost> {
           borderSide: BorderSide.none,
         ),
       ),
-      style: TextStyle(fontSize: 16, fontFamily: 'Poppins', color: Colors.black),
+      style: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
     );
   }
 
@@ -91,17 +153,17 @@ class _AddPost extends State<AddPost> {
           borderRadius: BorderRadius.circular(15),
           child: (_selectedImage != null)
               ? Image.file(
-            _selectedImage!,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          )
+                  _selectedImage!,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                )
               : Image.asset(
-            'assets/images/park1.jpg',
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
+                  'assets/images/park1.jpg',
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                ),
         ),
         Positioned(
           bottom: 10,
@@ -114,7 +176,7 @@ class _AddPost extends State<AddPost> {
             child: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(0xFFF9AFA6), // Matching theme color
+                color: TColors.secondary, // Matching theme color
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -133,26 +195,24 @@ class _AddPost extends State<AddPost> {
   Widget _postButton() {
     return Center(
       child: SizedBox(
-        width: double.infinity,
-        height: 50,
         child: ElevatedButton(
           onPressed: () {
             if (_selectedImage != null) {
-              Firestore().addPost(title.text, _selectedImage!);
+              Firestore().addPost(title.text, desc.text, _selectedImage!, selectedFilters.toList());
             }
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFF9AFA6), // Same color as login button
+            backgroundColor: TColors.secondary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
             ),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
           ),
           child: Text(
             "Post",
             style: TextStyle(
               fontSize: 16,
-              fontFamily: 'Poppins',
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -171,7 +231,7 @@ class _AddPost extends State<AddPost> {
         children: <Widget>[
           Text(
             "Upload a Picture",
-            style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 15),
           Row(
@@ -196,7 +256,8 @@ class _AddPost extends State<AddPost> {
       },
       label: Text(
         label,
-        style: TextStyle(fontSize: 16, fontFamily: 'Poppins', color: Colors.black),
+        style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     );
   }

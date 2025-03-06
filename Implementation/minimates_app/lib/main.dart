@@ -4,6 +4,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/auth/main_page.dart';
+import 'screens/bottom_nav_bar.dart';
 
 import 'package:untitled1/utils/theme/theme.dart';
 import 'package:get/get.dart';
@@ -49,7 +50,7 @@ class MyApp extends StatelessWidget {
       // ),
       // home: OnBoardingScreen(),
       // navigatorKey: Get.key,
-      home:Main_Page()
+      home:BottomNavBar()
     );
   }
 }

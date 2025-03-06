@@ -12,8 +12,8 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _usernameController = TextEditingController(text: 'Becky Jin');
   final TextEditingController _ageController = TextEditingController(text: '30');
-  final TextEditingController _cityController = TextEditingController(text: 'Jakarta');
-  final TextEditingController _emailController = TextEditingController(text: 'freyajawardhana@email.com');
+  final TextEditingController _cityController = TextEditingController(text: 'Becky');
+  final TextEditingController _emailController = TextEditingController(text: 'beckyjin873@email.com');
 
   String _selectedGender = 'Female';
   List<String> _genderOptions = ['Male', 'Female', 'Other'];

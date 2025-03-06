@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
 import 'package:untitled1/data/firestore.dart';
 import 'package:untitled1/screens/details.dart';
 import 'package:untitled1/screens/add_post.dart';
 import 'package:untitled1/screens/profile.dart';
-import 'package:untitled1/data/data.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 import '../utils/constants/colors.dart';
@@ -85,7 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                    builder: (context) => AddPost()),
+                                  builder: (context) =>
+                                      AddPost(showBackArrow: true),
+                                ),
                               );
                             },
                           ),
@@ -105,15 +105,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailsPage(
-                                  title: 'Popular Article #$index',
-                                  image: 'https://via.placeholder.com/150',
-                                ),
-                              ),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => DetailsPage(
+                            //       title: 'Popular Article #$index',
+                            //       image: 'https://via.placeholder.com/150',
+                            //     ),
+                            //   ),
+                            // );
                           },
                           child: Container(
                             width: 250,
@@ -165,23 +165,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                       SizedBox(height: 5),
                                       GestureDetector(
                                         onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => DetailsPage(
-                                                title:
-                                                    'Popular Article #$index',
-                                                image:
-                                                    'https://via.placeholder.com/150',
-                                              ),
-                                            ),
-                                          );
+                                          // Navigator.push(
+                                          //   context,
+                                          //   MaterialPageRoute(
+                                          //     builder: (context) => DetailsPage(
+                                          //       title:
+                                          //           'Popular Article #$index',
+                                          //       image:
+                                          //           'https://via.placeholder.com/150',
+                                          //     ),
+                                          //   ),
+                                          // );
                                         },
                                         child: Text(
-                                          'Read More>>',
+                                          'More>>',
                                           style: TextStyle(
-                                              color: TColors.secondary,
-                                              fontWeight: FontWeight.bold),
+                                              color: TColors.accent,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400),
                                         ),
                                       ),
                                     ],
@@ -210,12 +211,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .map((tag) => GestureDetector(
                                         onTap: () {
                                           setState(() {
-                                            selectedFilters
-                                                    .contains(tag.name)
+                                            selectedFilters.contains(tag.name)
                                                 ? selectedFilters
                                                     .remove(tag.name)
-                                                : selectedFilters
-                                                    .add(tag.name);
+                                                : selectedFilters.add(tag.name);
                                           });
                                         },
                                         child: Container(
@@ -224,10 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                           margin: EdgeInsets.symmetric(
                                               horizontal: 5),
                                           decoration: BoxDecoration(
-                                            color:
-                                                selectedFilters.contains(tag.name)
-                                                    ? TColors.secondary
-                                                    : Colors.grey[300],
+                                            color: selectedFilters
+                                                    .contains(tag.name)
+                                                ? TColors.accent
+                                                : Colors.grey[300],
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                           ),
@@ -256,7 +255,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (!snapshot.hasData) {
                         return Center(child: CircularProgressIndicator());
                       }
-                      final postList = Firestore().getPosts(snapshot, selectedFilters.toList());
+                      final postList = Firestore()
+                          .getPosts(snapshot, selectedFilters.toList());
 
                       return ListView.builder(
                         shrinkWrap:
@@ -276,6 +276,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => DetailsPage(
                                     title: post.title,
                                     image: post.image,
+                                    postID: post.id,
+                                    userID: post.userId,
                                   ),
                                 ),
                               );
@@ -325,14 +327,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                             CircleAvatar(
                                               radius: 14,
                                               backgroundImage: AssetImage(
-                                                  'assets/images/default_avatar.png'),
+                                                  'assets/images/profile.jpg'),
                                             ),
                                             SizedBox(width: 8),
-                                            Text(
-                                              "Username",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold),
-                                            ),
+                                            // FutureBuilder(
+                                            //     future: Firestore()
+                                            //         .getUserById(post.userId),
+                                            //     builder: (context, snapshot) {
+                                            //       return Text(
+                                            //         snapshot!.data!.name,
+                                            //         style: TextStyle(
+                                            //             fontWeight:
+                                            //                 FontWeight.bold),
+                                            //       );
+                                            //     }),
                                             Spacer(),
                                             GestureDetector(
                                               onTap: () {},
@@ -347,10 +355,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     Text(
                                                       "More>>",
                                                       style: TextStyle(
-                                                          color:
-                                                              TColors.secondary,
+                                                          color: TColors.accent,
                                                           fontWeight:
-                                                              FontWeight.bold),
+                                                              FontWeight.w400),
                                                     ),
                                                   ],
                                                 ),

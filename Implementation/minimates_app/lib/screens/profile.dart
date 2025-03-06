@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/screens/edit_profile.dart';
 import 'package:untitled1/data/auth_data.dart';
+import 'package:untitled1/screens/preference.dart';
 import '../auth/auth_page.dart';
 import '../utils/constants/colors.dart';
 
@@ -19,10 +20,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: TColors.secondary,
         centerTitle: true,
-        title: Text(
-          'Profile',
-          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+        // title: Text(
+        //   'Profile',
+        //   style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        // ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -74,10 +75,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   ProfileRow(title: 'Age', value: '30'),
                   ProfileRow(title: 'Gender', value: 'Female'),
-                  ProfileRow(title: 'City', value: 'Jakarta'),
-                  ProfileRow(title: 'Email', value: 'freyajawardhana@email.com'),
+                  ProfileRow(title: 'City', value: 'Burnaby'),
+                  ProfileRow(title: 'Email', value: 'beckyjin873@email.com'),
                   SizedBox(height: 10),
-                  ProfileRowWithTrailing(title: 'Preferences', trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)),
+                  ListTile(
+                    title: const Text('Preferences'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const PreferenceSelectionPage()),
+                      );
+                    },
+                  ),
                   ProfileRowWithTrailing(
                     title: 'Notifications',
                     trailing: Switch(

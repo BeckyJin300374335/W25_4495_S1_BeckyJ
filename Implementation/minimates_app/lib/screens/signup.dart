@@ -19,7 +19,9 @@ class _SignupScreenState extends State<SignupScreen> {
   FocusNode _focusNode1 = FocusNode();
   FocusNode _focusNode2 = FocusNode();
   FocusNode _focusNode3 = FocusNode();
+  FocusNode _focusNode4 = FocusNode();
 
+  final userName = TextEditingController();
   final email = TextEditingController();
   final password = TextEditingController();
   final passwordConfirm = TextEditingController();
@@ -37,6 +39,9 @@ class _SignupScreenState extends State<SignupScreen> {
     _focusNode3.addListener(() {
       setState(() {});
     });
+    _focusNode4.addListener(() {
+      setState(() {});
+    });
   }
 
   @override
@@ -50,23 +55,28 @@ class _SignupScreenState extends State<SignupScreen> {
               height: 20,
             ),
             image(context),
+
+            textfield_email(userName, _focusNode4,  'UserName', Icons.person_2_outlined),
             SizedBox(
-              height: 50,
+              height: 20,
             ),
             textfield_email(email, _focusNode1, 'Email', Icons.email),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             textfield_email(password, _focusNode2, 'Password', Icons.password),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             textfield_email(passwordConfirm, _focusNode3,
                 'PasswordConfirmation', Icons.password),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             account(),
+            SizedBox(
+              height: 20,
+            ),
             Signup_bottom()
           ],
         ),
@@ -105,7 +115,7 @@ class _SignupScreenState extends State<SignupScreen> {
         onTap: () async{
           try {
             await AuthenticationRemote()
-                .register(email.text, password.text, passwordConfirm.text);
+                .register(userName.text,email.text, password.text, passwordConfirm.text);
 
             // ✅ Only navigate to login page if registration is successful
             Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -124,7 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: Color(0xFFF9AFA6), borderRadius: BorderRadius.circular(10)),
+              color: TColors.secondary, borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Sign Up',
             style: TextStyle(
@@ -159,7 +169,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: Colors.grey, width: 2.0)),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: TColors.primary, width: 2.0))),
+                  borderSide: BorderSide(color: TColors.secondary, width: 2.0))),
         ),
       ),
     );
@@ -174,7 +184,8 @@ class _SignupScreenState extends State<SignupScreen> {
           height: MediaQuery.of(context).size.height * 0.4,
           decoration: BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/login.png'),
+                  image: AssetImage('assets/images/signup'
+                      '.png'),
                   fit: BoxFit.cover)),
         ),
       ),

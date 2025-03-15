@@ -13,17 +13,19 @@ class Firestore {
   final FirebaseAuth _auth =
       FirebaseAuth.instance; //get the currently logged-in user
 
-  Future<bool> createUser(String email) async {
+  Future<bool> createUser(String userName, String email) async {
     try {
       await _firestore
           .collection("users")
           .doc(_auth.currentUser!.uid)
-          .set({"id": _auth.currentUser!.uid, "email": email});
+          .set({"id": _auth.currentUser!.uid,"userName": userName, "email": email});
       return true;
     } catch (e) {
       return false;
     }
   }
+
+
 
   Future<Post> getPostByID(String postID) async {
     final snapshot = await _firestore.collection('posts').doc(postID).get();
@@ -34,57 +36,57 @@ class Firestore {
   List<Post> getPosts(AsyncSnapshot snapshot, List<String> tags) {
     return snapshot.data.docs.map<Post>((doc) => Post.fromFirestore(doc)).where((post) {
       if (tags.isEmpty) return true;
-      post.userID;
+      post.userId;
       return Set.from(tags).intersection(Set.from(post.tags)).isNotEmpty;
     }).toList();
   }
 
-  Future<List<Post>> postList(List<String> tags) async {
-    final snapshot = await _firestore.collection('posts').get();
-
-    return snapshot.docs.map<Post>((doc) => Post.fromFirestore(doc)).where((post) {
-      if (tags.isEmpty) return true;
-      return Set.from(tags).intersection(Set.from(post.tags)).isNotEmpty;
-    }).toList();
+  Future<List<Post>> myPostList() async {
+    String user_id = _auth.currentUser!.uid;
+    final snapshot = await _firestore.collection('posts').where('user_id', isEqualTo: user_id).get();
+    return snapshot.docs.map<Post>((doc) => Post.fromFirestore(doc)).toList();
   }
 
+  Future<void> updateUserProfile({
+    required String userName,
+    required String email,
+    required String age,
+    required String gender,
+    required String city,
+  }) async {
+    try {
+      await _firestore
+          .collection("users")
+          .doc(_auth.currentUser!.uid)
+          .update({
+        "userName": userName,
+        "email": email,
+        "age": age,
+        "gender": gender,
+        "city": city,
+      });
+    } catch (e) {
+      print("Error updating user: $e");
+    }
+  }
 
+  Future<Map<String, dynamic>?> getUserProfile() async {
+    try {
+      final snapshot = await _firestore
+          .collection("users")
+          .doc(_auth.currentUser!.uid)
+          .get();
 
-  // List getPosts(AsyncSnapshot snapshot, List<String> tags) {
-  //   return snapshot.data.docs.map((doc) {
-  //     return Post(doc.id, doc.get('title'), doc.get('image'), doc.get('tags'), doc.get('description'), doc.get('timestamp'));
-  //   }).where((post) {
-  //     if (tags.isEmpty) {
-  //       return true;
-  //     }
-  //     return Set.from(tags).intersection(Set.from(post.tags)).isNotEmpty;
-  //   }).toList();
-  // }
-  //
-  // Future<List> postList(List<String> tags) async {
-  //   final snapshot = await _firestore.collection('posts').get();
-  //   return snapshot.docs.map((doc) {
-  //     return Post(doc.id, doc.get('title'), doc.get('image'), doc.get('tags'), doc.get('description'), doc.get('timestamp'));
-  //   }).where((post) {
-  //     if (tags.isEmpty) {
-  //       return true;
-  //     }
-  //     return Set.from(tags).intersection(Set.from(post.tags)).isNotEmpty;
-  //   }).toList();
-  // }
-
-  // Future<List<Post>> joinedPostList() async {
-  //   String user_id = _auth.currentUser!.uid;
-  //   final snapshot = await _firestore.collection('users_posts').where('user_id', isEqualTo: user_id).where('is_going', isEqualTo: true).get();
-  //   final going_post_id_list = snapshot.docs.map((doc) {
-  //     return doc['post_id'];
-  //   });
-  //   return await _firestore.collection('posts').where(FieldPath.documentId, whereIn: going_post_id_list).get().then((value) {
-  //     return value.docs.map((doc) {
-  //       return Post(doc.id, doc.get('title'), doc.get('image'), doc.get('tags'));
-  //     }).toList();
-  //   });
-  // }
+      if (snapshot.exists) {
+        return snapshot.data();
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error loading user profile: $e");
+      return null;
+    }
+  }
 
   Future<List<Post>> joinedPostList() async {
     String user_id = _auth.currentUser!.uid;
@@ -135,6 +137,83 @@ class Firestore {
     }
   }
 
+  Future<void> collectPost(String postID) async {
+    try {
+      await _firestore
+          .collection('collected_posts')
+          .doc(_auth.currentUser!.uid)
+          .collection('posts')
+          .doc(postID)
+          .set({
+        'post_id': postID,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      print("✅ Post collected: $postID");
+    } catch (e) {
+      print("❌ Error collecting post: $e");
+    }
+  }
+  Future<void> uncollectPost(String postID) async {
+    try {
+      await _firestore
+          .collection('collected_posts')
+          .doc(_auth.currentUser!.uid)
+          .collection('posts')
+          .doc(postID)
+          .delete();
+      print("✅ Post uncollected: $postID");
+    } catch (e) {
+      print("❌ Error uncollecting post: $e");
+    }
+  }
+
+  Future<bool> isPostCollected(String postID) async {
+    final doc = await _firestore
+        .collection('collected_posts')
+        .doc(_auth.currentUser!.uid)
+        .collection('posts')
+        .doc(postID)
+        .get();
+    return doc.exists;
+  }
+
+  Future<List<Post>> getCollectedPosts() async {
+    String user_id = _auth.currentUser!.uid;
+
+    final snapshot = await _firestore
+        .collection('collected_posts')
+        .doc(user_id)
+        .collection('posts')
+        .get();
+
+    final List<String> collectedPostIds =
+    snapshot.docs.map((doc) => doc['post_id'] as String).toList();
+
+    if (collectedPostIds.isEmpty) {
+      return [];
+    }
+
+    final postSnapshot = await _firestore
+        .collection('posts')
+        .where(FieldPath.documentId, whereIn: collectedPostIds)
+        .get();
+
+    return postSnapshot.docs.map((doc) {
+      return Post(
+        id: doc.id,
+        title: doc.get('title'),
+        image: doc.get('image'),
+        tags: List<String>.from(doc.get('tags') ?? []),
+        description: doc.get('description') ?? "",
+        timestamp: (doc.get('timestamp') is Timestamp)
+            ? (doc.get('timestamp') as Timestamp).toDate()
+            : DateTime.now(),
+        userId: doc.get('user_id'),
+      );
+    }).toList();
+  }
+
+
 
   Future<DocumentReference> addPost(
       String title, String desc, File imageFile, List<String> tags) async {
@@ -175,11 +254,42 @@ class Firestore {
     return _firestore.collection('posts').snapshots();
   }
 
+  Stream<QuerySnapshot> myPostsStream() {
+    String user_id = _auth.currentUser!.uid;
+    return _firestore.collection('posts').where('user_id', isEqualTo: user_id).snapshots();
+  }
+
   Future<List<Tag>> tagList() async {
     final snapshot = await _firestore.collection('tags').get();
     return snapshot.docs.map((doc) {
       return Tag(doc.get('name'));
     }).toList();
+  }
+
+  Future<void> saveArticles(Map<String, String> articles) async {
+    for (var entry in articles.entries) {
+      try {
+        await _firestore.collection('articles').doc(entry.key).set({
+          'title': entry.key,
+          'content': entry.value,
+        });
+        developer.log("✅ Saved article: ${entry.key}");
+      } catch (e) {
+        developer.log("❌ Failed to save article ${entry.key}: $e");
+      }
+    }
+  }
+
+
+  /// ✅ Load articles from Firestore
+  Future<Map<String, String>> getArticles() async {
+    final snapshot = await _firestore.collection('articles').get();
+    Map<String, String> articles = {};
+    developer.log("data: ${snapshot.docs.toString()}");
+    for (var doc in snapshot.docs) {
+      articles[doc['title']] = doc['content'];
+    }
+    return articles;
   }
 
   Future<AppUser> getUserById(String? userID) async {

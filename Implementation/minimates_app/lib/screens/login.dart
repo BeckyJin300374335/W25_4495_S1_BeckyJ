@@ -3,6 +3,7 @@ import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
 
+import 'bottom_nav_bar.dart';
 import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -43,18 +44,17 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 20,
             ),
             image(context),
-            SizedBox(
-              height: 50,
-            ),
+
             textfield_email(email, _focusNode1, 'Email', Icons.email),
             SizedBox(
-              height: 10,
+              height: 20,
             ),
             textfield_email(password, _focusNode2, 'Password', Icons.password),
             SizedBox(
-              height: 8,
+              height: 20,
             ),
             account(),
+            SizedBox(height: 20),
             Login_bottom()
           ],
         ),
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: () {
           AuthenticationRemote().login(email.text, password.text);
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => HomeScreen(),
+            builder: (BuildContext context) => BottomNavBar(),
           ));
         },
         child: Container(
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: Color(0xFFF9AFA6), borderRadius: BorderRadius.circular(10)),
+              color: TColors.secondary, borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Login',
             style: TextStyle(
@@ -136,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide(color: Colors.grey, width: 2.0)),
               focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: TColors.primary, width: 2.0))),
+                  borderSide: BorderSide(color: TColors.secondary, width: 2.0))),
         ),
       ),
     );
@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
           height: MediaQuery.of(context).size.height * 0.4,
           decoration: BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/images/login.png'),
+                  image: AssetImage('assets/images/fingerprint.png'),
                   fit: BoxFit.cover)),
         ),
       ),

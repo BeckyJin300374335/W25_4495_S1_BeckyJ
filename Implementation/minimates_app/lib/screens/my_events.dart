@@ -4,7 +4,8 @@ import 'package:untitled1/utils/constants/sizes.dart';
 import '../auth/auth_page.dart';
 import '../data/auth_data.dart';
 import '../data/data.dart';
-import '../utils/constants/colors.dart'; // Import your theme colors
+import '../utils/constants/colors.dart';
+import 'details.dart'; // Import your theme colors
 
 class MyEventsPage extends StatefulWidget {
   @override
@@ -14,51 +15,49 @@ class MyEventsPage extends StatefulWidget {
 class _MyEventsPageState extends State<MyEventsPage> {
   int _selectedFilter = 0; // 0: Upcoming, 1: Past, 2: Cancelled
   List<Post> joinedPost = [];
-
-  // final List<Map<String, dynamic>> events = [
-  //   {
-  //     "id": "GBD99763JS",
-  //     "date": "24/09/2024",
-  //     "organizer": "Infinity Event Organizer",
-  //     "title": "Summer Music Festival",
-  //     "status": "Upcoming",
-  //     "color": TColors.primary,
-  //   },
-  //   {
-  //     "id": "GBD99763KL",
-  //     "date": "20/10/2024",
-  //     "organizer": "AvantGarde Events",
-  //     "title": "Fashion Forward Fest",
-  //     "status": "Upcoming",
-  //     "color": TColors.secondary,
-  //   },
-  // ];
-
-  // @override
-  // void initState() {
-  //   Firestore().joinedPostList().then((value) {
-  //     setState(() {
-  //       joinedPost = value;
-  //     });
-  //   });
-  // }
+  List<Post> myPosts = [];
+  List<Post> collectedPosts = [];
 
   @override
   void initState() {
     super.initState();
     _fetchJoinedPosts();
+    _fetchMyPosts();
+    _fetchCollectedPosts();
   }
+
+
 
   void _fetchJoinedPosts() async {
     List<Post> fetchedPosts = await Firestore().joinedPostList();
     print("Fetched Posts: $fetchedPosts");
-
     if (mounted) {
       setState(() {
         joinedPost = fetchedPosts;
       });
     }
   }
+
+  void _fetchMyPosts() async {
+    List<Post> myPostList = await Firestore().myPostList();
+
+    if (mounted) {
+      setState(() {
+        myPosts = myPostList;
+      });
+    }
+  }
+
+  void _fetchCollectedPosts() async {
+    List<Post> fetchedCollectedPosts = await Firestore().getCollectedPosts();
+
+    if (mounted) {
+      setState(() {
+        collectedPosts = fetchedCollectedPosts;
+      });
+    }
+  }
+
 
 
 
@@ -131,8 +130,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _filterButton("Upcoming", 0),
-            _filterButton("Posted", 1),
-            _filterButton("Cancelled", 2),
+            _filterButton("Posts", 1),
+            _filterButton("Collects", 2),
           ],
         ),
       ),
@@ -170,8 +169,62 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   Widget _buildEventList() {
     print("📝 UI is building with ${joinedPost.length} posts");
-
-    if (joinedPost.isEmpty) {
+    List<Post> displayedPost = [];
+    switch (_selectedFilter) {
+      case 0:
+        displayedPost = joinedPost;
+        break;
+        // if (joinedPost.isEmpty) {
+        //   return Expanded(  // ✅ Ensure it takes available space
+        //     child: Center(
+        //       child: Text(
+        //         "No joined events found.",
+        //         style: TextStyle(color: Colors.black54, fontSize: 16),
+        //       ),
+        //     ),
+        //   );
+        // }
+        // return Expanded( // ✅ Ensure ListView is inside Expanded
+        //   child: ListView.builder(
+        //     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        //     itemCount: joinedPost.length,
+        //     itemBuilder: (context, index) {
+        //       final post = joinedPost[index];
+        //       print("🎉 Rendering event: ${post.title}");
+        //       return _buildEventCard(post);
+        //     },
+        //   ),
+        // );
+      case 1:
+        displayedPost = myPosts;
+        // if (myPosts.isEmpty) {
+        //   return Expanded(  // ✅ Ensure it takes available space
+        //     child: Center(
+        //       child: Text(
+        //         "No joined events found.",
+        //         style: TextStyle(color: Colors.black54, fontSize: 16),
+        //       ),
+        //     ),
+        //   );
+        // }
+        //
+        // return Expanded( // ✅ Ensure ListView is inside Expanded
+        //   child: ListView.builder(
+        //     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        //     itemCount: myPosts.length,
+        //     itemBuilder: (context, index) {
+        //       final post = myPosts[index];
+        //       print("🎉 Rendering event: ${post.title}");
+        //       return _buildEventCard(post);
+        //     },
+        //   ),
+        // );
+        break;
+      case 2:
+        displayedPost = collectedPosts;
+        break;
+    }
+    if (displayedPost.isEmpty) {
       return Expanded(  // ✅ Ensure it takes available space
         child: Center(
           child: Text(
@@ -181,18 +234,19 @@ class _MyEventsPageState extends State<MyEventsPage> {
         ),
       );
     }
-
     return Expanded( // ✅ Ensure ListView is inside Expanded
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        itemCount: joinedPost.length,
+        itemCount: displayedPost.length,
         itemBuilder: (context, index) {
-          final post = joinedPost[index];
+          final post = displayedPost[index];
           print("🎉 Rendering event: ${post.title}");
           return _buildEventCard(post);
         },
       ),
     );
+
+
   }
 
 
@@ -238,8 +292,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _eventButton("Cancel", Color(0xFFD32F2F), () => _showCancelDialog()),
-                    _eventButton("detail", TColors.accent,(){} ),
+                    _eventButton("Cancel", Color(0xFFD32F2F), () => _showCancelDialog(), post),
+                    _eventButton("detail", TColors.accent,(){} , post),
                   ],
                 ),
               ],
@@ -250,9 +304,23 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-  Widget _eventButton(String title, Color color, VoidCallback onPressed) {
+  Widget _eventButton(String title, Color color, VoidCallback onPressed, Post post) {
     return ElevatedButton(
-      onPressed: (){},
+      onPressed: ()async {
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DetailsPage(
+              title: post.title,
+              image: post.image,
+              postID: post.id,
+              userID: post.userId,
+            ),
+          ),
+        );
+
+        // ✅ Refresh collected posts after returning from DetailsPage
+        _fetchCollectedPosts();
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

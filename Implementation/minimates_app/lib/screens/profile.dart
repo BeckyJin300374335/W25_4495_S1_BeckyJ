@@ -3,6 +3,7 @@ import 'package:untitled1/screens/edit_profile.dart';
 import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/screens/preference.dart';
 import '../auth/auth_page.dart';
+import '../data/firestore.dart';
 import '../utils/constants/colors.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -12,6 +13,33 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _notificationsEnabled = false;
+
+  final Firestore _firestore = Firestore();
+
+  String _username = '';
+  String _age = '';
+  String _gender = '';
+  String _city = '';
+  String _email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final userData = await _firestore.getUserProfile();
+    if (userData != null) {
+      setState(() {
+        _username = userData['userName'] ?? '';
+        _age = userData['age'] ?? '';
+        _gender = userData['gender'] ?? '';
+        _city = userData['city'] ?? '';
+        _email = userData['email'] ?? '';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Becky Jin',
+                            _username,
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
                         ],
@@ -73,10 +101,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ProfileRow(title: 'Age', value: '30'),
-                  ProfileRow(title: 'Gender', value: 'Female'),
-                  ProfileRow(title: 'City', value: 'Burnaby'),
-                  ProfileRow(title: 'Email', value: 'beckyjin873@email.com'),
+                  ProfileRow(title: 'Age', value: _age),
+                  ProfileRow(title: 'Gender', value: _gender),
+                  ProfileRow(title: 'City', value: _city),
+                  ProfileRow(title: 'Email', value: _email),
                   SizedBox(height: 10),
                   ListTile(
                     title: const Text('Preferences'),
@@ -103,10 +131,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(height: 10),
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
+                      onPressed: () async {
+                        await Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => EditProfileScreen()),
                         );
+                        _loadUserProfile(); // Reload profile after editing
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: TColors.secondary,

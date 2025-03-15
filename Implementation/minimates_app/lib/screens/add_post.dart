@@ -6,6 +6,8 @@ import 'package:untitled1/screens/home.dart';
 import '../utils/constants/colors.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
+import 'bottom_nav_bar.dart';
+
 
 class AddPost extends StatefulWidget {
   final bool showBackArrow;
@@ -77,9 +79,10 @@ class _AddPostState extends State<AddPost> {
 
   /// **Format Date/Time for Display**
   String formatDateTime(DateTime? dateTime) {
-    if (dateTime == null) return "Not selected";
-    return "${dateTime.month}/${dateTime.day}/${dateTime.year} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+    if (dateTime == null) return '';
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}${dateTime.hour >= 12 ? 'pm' : 'am'}';
   }
+
 
 
 
@@ -115,7 +118,7 @@ class _AddPostState extends State<AddPost> {
           TextButton(
             onPressed: () {
               Navigator.popUntil(context, (route) => route.isFirst);
-              // Navigator.pop(context);
+
               // Handle cancellation logic here
             },
             child: Text("Yes", style: TextStyle(color: TColors.accent)),
@@ -152,101 +155,114 @@ class _AddPostState extends State<AddPost> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title Input Field
-            _titleInputField('Enter title...', TextInputType.text, title, 1, titleNode),
-            const SizedBox(height: 20),
-            _titleInputField(
-                'Enter description...', TextInputType.multiline, desc, 5, descNode),
-            const SizedBox(height: 10),
-            // **Duration Picker Row**
-            Row(
-              children: [
-                // **Time Icon & Duration Button**
-                TextButton.icon(
-                  onPressed: () {
-                    showDateRangePicker();
-                  },
-                  icon: Icon(Icons.access_time, color: Colors.black),
-                  label: Text(
-                    "Duration: ${formatDateTime(_startTime)} - ${formatDateTime(_endTime)}",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+      resizeToAvoidBottomInset: true,
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title Input Field
+              _titleInputField('Enter title...', TextInputType.text, title, 1, titleNode),
+              const SizedBox(height: 20),
+              _titleInputField(
+                  'Enter description...', TextInputType.multiline, desc, 5, descNode),
+              const SizedBox(height: 10),
+              // **Duration Picker Row**
+              Row(
+                children: [
+                  // **Time Icon & Duration Button**
+                  TextButton.icon(
+                    onPressed: () {
+                      showDateRangePicker();
+                    },
+                    icon: Icon(Icons.access_time, color: Colors.black),
+                    label: Text(
+                      (_startTime == null || _endTime == null)
+                          ? "Please select the time:"
+                          : "${formatDateTime(_startTime)} - ${formatDateTime(_endTime)}",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
                     ),
-                    backgroundColor: Colors.grey[200],
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      backgroundColor: Colors.grey[200],
+                    ),
                   ),
+                ],
+              ),
+              // Image Upload Widget
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: 100,
+                  maxHeight: 200, // ✅ Define height to avoid size conflict
                 ),
-              ],
-            ),
-            // Image Upload Widget
-            _imageUploadWidget(),
-            const SizedBox(height: 20),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              height: 40,
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: FutureBuilder(
-                  future: Firestore().tagList(),
-                  builder: (context, snapshot) {
-                    final tagList = snapshot.data;
-                    if (tagList != null) {
-                      return ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: tagList
-                            .map((tag) => GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedFilters
-                                  .contains(tag.name)
-                                  ? selectedFilters
-                                  .remove(tag.name)
-                                  : selectedFilters
-                                  .add(tag.name);
-                            });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 8),
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 5),
-                            decoration: BoxDecoration(
-                              color:
-                              selectedFilters.contains(tag.name)
-                                  ? TColors.secondary
-                                  : Colors.grey[300],
-                              borderRadius:
-                              BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              tag.name,
-                              style: TextStyle(
-                                color: selectedFilters
+                child: _imageUploadWidget(),
+              ),
+
+              const SizedBox(height: 20),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                height: 40,
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: FutureBuilder(
+                    future: Firestore().tagList(),
+                    builder: (context, snapshot) {
+                      final tagList = snapshot.data;
+                      if (tagList != null) {
+                        return ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: tagList
+                              .map((tag) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedFilters
                                     .contains(tag.name)
-                                    ? Colors.white
-                                    : Colors.black,
+                                    ? selectedFilters
+                                    .remove(tag.name)
+                                    : selectedFilters
+                                    .add(tag.name);
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 8),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 5),
+                              decoration: BoxDecoration(
+                                color:
+                                selectedFilters.contains(tag.name)
+                                    ? TColors.secondary
+                                    : Colors.grey[300],
+                                borderRadius:
+                                BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                tag.name,
+                                style: TextStyle(
+                                  color: selectedFilters
+                                      .contains(tag.name)
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
                               ),
                             ),
-                          ),
-                        ))
-                            .toList(),
-                      );
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  }),
-            ),
-            const SizedBox(height: 20),
-            // Post Button
-            _cancelPostButton(),
-          ],
+                          ))
+                              .toList(),
+                        );
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    }),
+              ),
+              const SizedBox(height: 20),
+              // Post Button
+              _cancelPostButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -346,7 +362,9 @@ class _AddPostState extends State<AddPost> {
                 if (_selectedImage != null) {
                   Firestore().addPost(title.text, desc.text, _selectedImage!, selectedFilters.toList());
                 }
-                Navigator.pop(context);
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (BuildContext context) => BottomNavBar(),
+                ));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: TColors.secondary,
@@ -398,6 +416,7 @@ class _AddPostState extends State<AddPost> {
       ),
     );
   }
+
 
 
   /// **Image Source Selection Button**

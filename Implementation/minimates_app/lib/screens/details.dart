@@ -56,6 +56,12 @@ class _DetailsPageState extends State<DetailsPage> {
     );
   }
 
+  String _formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return 'Unknown date';
+    return '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')} at ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
+  }
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -69,6 +75,35 @@ class _DetailsPageState extends State<DetailsPage> {
           isGoing = false;
         });
       }
+    });
+
+    Firestore().isPostCollected(widget.postID).then((value) {
+      setState(() {
+        isCollected = value;
+      });
+    });
+
+    // ✅ Load post data (including timestamp)
+    Firestore().getPostByID(widget.postID).then((value) {
+      setState(() {
+        post = value;
+      });
+    });
+
+    // ✅ Check if user has joined the event
+    Firestore().getUserPostRelation(widget.postID).then((value) {
+      if (value != null && value.is_going) {
+        setState(() {
+          isGoing = true;
+        });
+      }
+    });
+
+    // ✅ Check if post is collected
+    Firestore().isPostCollected(widget.postID).then((value) {
+      setState(() {
+        isCollected = value;
+      });
     });
   }
 
@@ -163,7 +198,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       }),
                   Spacer(),
                   Text(
-                    "Today at 11:40 AM",
+                    post != null ? _formatTimestamp(post!.timestamp) : 'Loading...',
                     style: TextStyle(color: Colors.grey),
                   ),
                 ],
@@ -174,7 +209,7 @@ class _DetailsPageState extends State<DetailsPage> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                "Join us for a fun-filled day at the park! This activity is open for all ages and is a great way to meet new friends.",
+                post != null ? post!.description : 'Loading...',
                 style: TextStyle(fontSize: 16, height: 1.5),
               ),
             ),
@@ -189,7 +224,14 @@ class _DetailsPageState extends State<DetailsPage> {
                 children: [
                   // Save Button
                   GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      if (isCollected) {
+                        await Firestore().uncollectPost(widget.postID);
+                      } else {
+                        await Firestore().collectPost(widget.postID);
+                      }
+
+                      // ✅ Update UI
                       setState(() {
                         isCollected = !isCollected;
                       });
@@ -203,7 +245,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                         SizedBox(width: 6),
                         Text(
-                          "Star",
+                          "Collect",
                           style: TextStyle(fontSize: 14),
                         ),
                       ],

@@ -7,6 +7,8 @@ import 'package:untitled1/screens/profile.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 import '../utils/constants/colors.dart';
+import 'article_detail.dart';
+import 'article_list.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,22 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Set<String> selectedFilters = {};
+
+  Article article = Article();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadArticles(); // Load articles when HomeScreen is initialized
+  }
+
+  Future<Map<String, String>> _loadArticles() async {
+    final articles = await article.loadArticlesFromFirestore();
+    return articles;
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,102 +117,103 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Popular Articles
                   SizedBox(
                     height: 250,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 5,
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => DetailsPage(
-                            //       title: 'Popular Article #$index',
-                            //       image: 'https://via.placeholder.com/150',
-                            //     ),
-                            //   ),
-                            // );
-                          },
-                          child: Container(
-                            width: 250,
-                            margin: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(10)),
-                                  child: Image.asset(
-                                    'assets/images/park1.jpg',
-                                    height: 140,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
+                    child: FutureBuilder<Map<String, String>>(
+                      future: _loadArticles(),
+                      builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                      return Center(child: Text('Failed to load articles'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('No articles available'));
+                      }
+
+                      final articles = snapshot.data!;
+
+
+                          return ListView.builder(
+                            shrinkWrap: true, // ✅ Fixes scroll conflict
+                            physics: ClampingScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: articles.length,
+                            itemBuilder: (context, index) {
+                              final titles = articles.keys.toList();
+                              final title = titles[index];
+                              final content = articles[title];
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ArticleDetailsPage(
+                                        title: title,
+                                        content: content ?? '',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 250,
+                                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(8),
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'Popular Article #$index',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                                        child: Image.asset(
+                                          'assets/images/park1.jpg',
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
-                                      SizedBox(height: 5),
-                                      Text(
-                                        'Short description of the article...',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                      SizedBox(height: 5),
-                                      GestureDetector(
-                                        onTap: () {
-                                          // Navigator.push(
-                                          //   context,
-                                          //   MaterialPageRoute(
-                                          //     builder: (context) => DetailsPage(
-                                          //       title:
-                                          //           'Popular Article #$index',
-                                          //       image:
-                                          //           'https://via.placeholder.com/150',
-                                          //     ),
-                                          //   ),
-                                          // );
-                                        },
-                                        child: Text(
-                                          'More>>',
-                                          style: TextStyle(
-                                              color: TColors.accent,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400),
+                                      Padding(
+                                        padding: EdgeInsets.all(8),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              title,
+                                              style: TextStyle(
+                                                  fontSize: 16, fontWeight: FontWeight.bold),
+                                            ),
+                                            Text(
+                                              content != null && content.length > 30
+                                                  ? '${content.substring(0, 30)}...'
+                                                  : content ?? '',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(color: Colors.grey),
+                                            ),
+                                            SizedBox(height: 5),
+
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
+                              );
+                            },
+                          );
+
                       },
                     ),
                   ),
+
+
 
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 10),
@@ -248,6 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                         }),
                   ),
+
+
                   // Posts Section
                   StreamBuilder<QuerySnapshot>(
                     stream: Firestore().postsStream(),

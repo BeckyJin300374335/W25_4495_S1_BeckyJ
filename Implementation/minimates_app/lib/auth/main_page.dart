@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:untitled1/auth/auth_page.dart';
 import 'package:untitled1/onboarding/onboarding.dart';
@@ -16,6 +18,7 @@ class Main_Page extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (FirebaseAuth.instance.currentUser != null) {
+                developer.log("2222222");
                 return HomeScreen();
               } else {
                 return OnBoardingScreen();

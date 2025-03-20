@@ -16,8 +16,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final Firestore _firestore = Firestore();
 
+  String? _profilePictureUrl;
+
   String _username = '';
-  String _age = '';
+  int? _age;
   String _gender = '';
   String _city = '';
   String _email = '';
@@ -37,9 +39,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _gender = userData['gender'] ?? '';
         _city = userData['city'] ?? '';
         _email = userData['email'] ?? '';
+        _profilePictureUrl = userData['profilePicture']; // Load profile picture URL
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +74,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       CircleAvatar(
                         radius: 40,
-                        backgroundImage: AssetImage('assets/images/profile.jpg'),
+                        backgroundImage: _profilePictureUrl != null
+                            ? NetworkImage(_profilePictureUrl!)
+                            : AssetImage('assets/images/profile.jpg') as ImageProvider,
                       ),
                       SizedBox(width: 10),
                       Column(
@@ -101,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ProfileRow(title: 'Age', value: _age),
+                  ProfileRow(title: 'Age', value: _age.toString()),
                   ProfileRow(title: 'Gender', value: _gender),
                   ProfileRow(title: 'City', value: _city),
                   ProfileRow(title: 'Email', value: _email),

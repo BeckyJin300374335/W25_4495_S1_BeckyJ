@@ -68,6 +68,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
+    String? profilePictureUrl;
+
+    if (_selectedImage != null) {
+      profilePictureUrl = await _firestore.uploadProfilePicture(_selectedImage!);
+    }
+
     await _firestore.updateUserProfile(
       userName: _usernameController.text,
       email: _emailController.text,
@@ -75,10 +81,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       gender: _selectedGender,
       city: _selectedCity,
     );
+
+    if (profilePictureUrl != null) {
+      print('Profile picture uploaded: $profilePictureUrl');
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Profile updated successfully')),
     );
+
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
+
 
 
   @override
@@ -114,9 +130,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: ElevatedButton(
                 onPressed: () async {
                   await _saveProfile();
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }// Close the screen after saving
+                  // if (context.mounted) {
+                  //   Navigator.pop(context);
+                  // }// Close the screen after saving
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: TColors.secondary,

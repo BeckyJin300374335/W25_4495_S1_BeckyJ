@@ -186,7 +186,7 @@ class _DetailsPageState extends State<DetailsPage> {
                       builder: (context, snapshot) {
                         if(snapshot.data != null){
                           return Text(
-                            snapshot.data!.name,
+                            snapshot.data!.userName,
                             style: TextStyle(
                                 fontWeight:
                                 FontWeight.bold),

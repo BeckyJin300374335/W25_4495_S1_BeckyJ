@@ -49,14 +49,18 @@ class UserPostRelation {
   UserPostRelation(this.user_id, this.post_id, this.is_going);
 }
 
+// {'userName': name, 'email': email, 'password': password, 'profilePicture': url, 'age': age, 'gender': gender, 'city': city}
+
 class AppUser {
-  String name;
+  String userName;
+  String? profilePicture;
   String id;
 
 
   AppUser({
     required this.id,
-    required this.name,
+    required this.userName,
+    required this.profilePicture,
   });
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
@@ -64,7 +68,8 @@ class AppUser {
 
     return AppUser(
       id: doc.id,
-      name: data['name'] ?? "No Title",
+      userName: data['userName'] ?? "No Title",
+      profilePicture: data['profilePicture'] ?? null,
     );
   }
 }

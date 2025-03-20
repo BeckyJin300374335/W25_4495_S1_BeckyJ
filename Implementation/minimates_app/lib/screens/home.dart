@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:untitled1/data/firestore.dart';
@@ -19,12 +21,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Set<String> selectedFilters = {};
+  final Firestore _firestore = Firestore();
+  String? _profilePictureUrl;
+
+  String? _username = '';
+  int? _age;
+  String? _gender;
+  String? _city;
+  String? _email;
 
   Article article = Article();
 
   @override
   void initState() {
     super.initState();
+    _loadUserProfile();
     _loadArticles(); // Load articles when HomeScreen is initialized
   }
 
@@ -33,8 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
     return articles;
   }
 
-
-
+  Future<void> _loadUserProfile() async {
+    final userData = await _firestore.getUserProfile();
+    if (userData != null) {
+      setState(() {
+        _username = userData['userName'] ?? '';
+        _age = userData['age'] ?? '';
+        _gender = userData['gender'] ?? '';
+        _city = userData['city'] ?? '';
+        _email = userData['email'] ?? '';
+        _profilePictureUrl =
+            userData['profilePicture']; // Load profile picture URL
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: CircleAvatar(
                             radius: 30,
-                            backgroundImage:
-                                AssetImage('assets/images/profile.jpg'),
+                            backgroundImage: _profilePictureUrl != null
+                                ? NetworkImage(_profilePictureUrl!)
+                                : AssetImage('assets/images/profile.jpg')
+                                    as ImageProvider,
                           ),
                         ),
                         SizedBox(width: 10),
@@ -84,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   TextStyle(fontSize: 14, color: Colors.grey),
                             ),
                             Text(
-                              'Becky Jin',
+                              _username ?? "",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
@@ -120,100 +145,103 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: FutureBuilder<Map<String, String>>(
                       future: _loadArticles(),
                       builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                      return Center(child: Text('Failed to load articles'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No articles available'));
-                      }
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Failed to load articles'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return Center(child: Text('No articles available'));
+                        }
 
-                      final articles = snapshot.data!;
+                        final articles = snapshot.data!;
 
+                        return ListView.builder(
+                          shrinkWrap: true, // ✅ Fixes scroll conflict
+                          physics: ClampingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          itemCount: articles.length,
+                          itemBuilder: (context, index) {
+                            final titles = articles.keys.toList();
+                            final title = titles[index];
+                            final content = articles[title];
 
-                          return ListView.builder(
-                            shrinkWrap: true, // ✅ Fixes scroll conflict
-                            physics: ClampingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            itemCount: articles.length,
-                            itemBuilder: (context, index) {
-                              final titles = articles.keys.toList();
-                              final title = titles[index];
-                              final content = articles[title];
-
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ArticleDetailsPage(
-                                        title: title,
-                                        content: content ?? '',
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ArticleDetailsPage(
+                                      title: title,
+                                      content: content ?? '',
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 250,
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(10)),
+                                      child: Image.asset(
+                                        'assets/images/park1.jpg',
+                                        height: 120,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 250,
-                                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
+                                    Padding(
+                                      padding: EdgeInsets.all(8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            title,
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            content != null &&
+                                                    content.length > 30
+                                                ? '${content.substring(0, 30)}...'
+                                                : content ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style:
+                                                TextStyle(color: Colors.grey),
+                                          ),
+                                          SizedBox(height: 5),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                                        child: Image.asset(
-                                          'assets/images/park1.jpg',
-                                          height: 120,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              title,
-                                              style: TextStyle(
-                                                  fontSize: 16, fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              content != null && content.length > 30
-                                                  ? '${content.substring(0, 30)}...'
-                                                  : content ?? '',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(color: Colors.grey),
-                                            ),
-                                            SizedBox(height: 5),
-
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          );
-
+                              ),
+                            );
+                          },
+                        );
                       },
                     ),
                   ),
-
-
 
                   Container(
                     margin: EdgeInsets.symmetric(vertical: 10),
@@ -268,7 +296,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                   ),
 
-
                   // Posts Section
                   StreamBuilder<QuerySnapshot>(
                     stream: Firestore().postsStream(),
@@ -289,6 +316,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: postList.length,
                         itemBuilder: (context, index) {
                           var post = postList[index];
+                          var userID = post.userId;
+                          // AppUser user = await _firestore.getUserById(userID);
+
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -345,11 +375,26 @@ class _HomeScreenState extends State<HomeScreen> {
                                         SizedBox(height: 10),
                                         Row(
                                           children: [
-                                            CircleAvatar(
-                                              radius: 14,
-                                              backgroundImage: AssetImage(
-                                                  'assets/images/profile.jpg'),
-                                            ),
+                                            FutureBuilder(
+                                                future: Firestore()
+                                                    .getUserById(userID),
+                                                builder: (context, snapshot) {
+                                                  final author = snapshot.data;
+                                                  if (author != null &&
+                                                      author.profilePicture !=
+                                                          null) {
+                                                    return CircleAvatar(
+                                                        radius: 30,
+                                                        backgroundImage: author.profilePicture != null
+                                                            ? NetworkImage(author.profilePicture!)
+                                                            : AssetImage('assets/images/profile.jpg')
+                                                        as ImageProvider,
+                                                    );
+                                                  } else {
+                                                    return CircularProgressIndicator();
+                                                  }
+                                                }),
+
                                             SizedBox(width: 8),
                                             // FutureBuilder(
                                             //     future: Firestore()

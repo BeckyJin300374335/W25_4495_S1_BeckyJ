@@ -293,7 +293,6 @@ class Firestore {
   }
 
   Future<AppUser> getUserById(String? userID) async {
-
     final snapshot = await _firestore.collection('users').doc(userID).get();
     return AppUser.fromFirestore(snapshot);
   }
@@ -306,4 +305,41 @@ class Firestore {
     await uploadTask;
     return uploadTask.snapshot.ref.getDownloadURL();
   }
+
+  Future<String> uploadProfilePicture(File imageFile) async {
+    try {
+      String userId = _auth.currentUser!.uid;
+
+      // 🔥 Delete old image if it exists
+      await FirebaseStorage.instance
+          .ref()
+          .child("profile_pictures/$userId.jpg")
+          .delete()
+          .catchError((e) {
+        print('No previous image found');
+      });
+
+      Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child("profile_pictures/$userId.jpg");
+
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+      await uploadTask;
+
+      // Get download URL
+      String downloadUrl = await storageRef.getDownloadURL();
+
+      // Update profile picture in Firestore
+      await _firestore.collection("users").doc(userId).update({
+        'profilePicture': downloadUrl,
+      });
+
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading profile picture: $e');
+      throw e;
+    }
+  }
+
+
 }

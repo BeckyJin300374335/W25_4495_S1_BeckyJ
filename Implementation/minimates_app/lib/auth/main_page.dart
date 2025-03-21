@@ -18,7 +18,6 @@ class Main_Page extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (FirebaseAuth.instance.currentUser != null) {
-                developer.log("2222222");
                 return HomeScreen();
               } else {
                 return OnBoardingScreen();

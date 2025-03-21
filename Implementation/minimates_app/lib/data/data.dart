@@ -55,12 +55,17 @@ class AppUser {
   String userName;
   String? profilePicture;
   String id;
-
+  int? age;
+  String? gender;
+  String? city;
 
   AppUser({
     required this.id,
     required this.userName,
     required this.profilePicture,
+    this.age,
+    this.gender,
+    this.city,
   });
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
@@ -70,6 +75,9 @@ class AppUser {
       id: doc.id,
       userName: data['userName'] ?? "No Title",
       profilePicture: data['profilePicture'] ?? null,
+      age: data['age'] != null ? int.tryParse(data['age'].toString()) : null, // ✅ Convert age to int
+      gender: data['gender'] ?? "Unknown",
+      city: data['city'] ?? "Unknown",
     );
   }
 }

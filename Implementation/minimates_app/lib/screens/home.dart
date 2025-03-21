@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Container(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: TColors.secondary,
+                            color: Color(0xFFFC5C65),
                           ),
                           child: IconButton(
                             icon: Icon(Icons.add, color: Colors.white),
@@ -382,20 +382,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   final author = snapshot.data;
                                                   if (author != null &&
                                                       author.profilePicture !=
-                                                          null) {
-                                                    return CircleAvatar(
-                                                        radius: 30,
-                                                        backgroundImage: author.profilePicture != null
-                                                            ? NetworkImage(author.profilePicture!)
-                                                            : AssetImage('assets/images/profile.jpg')
-                                                        as ImageProvider,
+                                                          null && author.userName != null) {
+                                                    return Row(
+                                                      children: [
+                                                        CircleAvatar(
+                                                            radius: 15,
+                                                            backgroundImage: author.profilePicture != null
+                                                                ? NetworkImage(author.profilePicture!)
+                                                                : AssetImage('assets/images/profile.jpg')
+                                                            as ImageProvider,
+                                                        ),
+                                                        SizedBox(width: 8),
+                                                        Text('${author.userName}')
+                                                      ],
                                                     );
                                                   } else {
                                                     return CircularProgressIndicator();
                                                   }
+                                                  
+                                                  
                                                 }),
+                                            
 
-                                            SizedBox(width: 8),
+
                                             // FutureBuilder(
                                             //     future: Firestore()
                                             //         .getUserById(post.userId),

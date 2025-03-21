@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled1/data/firestore.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
@@ -18,19 +19,34 @@ class _MyEventsPageState extends State<MyEventsPage> {
   List<Post> myPosts = [];
   List<Post> collectedPosts = [];
 
+  // ✅ Cache the future
+  Future<AppUser?>? _cachedUserFuture;
+
   @override
   void initState() {
     super.initState();
     _fetchJoinedPosts();
     _fetchMyPosts();
     _fetchCollectedPosts();
+
+    // ✅ Cache the future in initState so it runs only once
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      if (user != null) {
+        print("✅ User logged in: ${user.uid}");
+        setState(() {
+          _cachedUserFuture = Firestore().getUserById(user.uid);
+        });
+      } else {
+        print("⚠️ User logged out");
+        setState(() {
+          _cachedUserFuture = null;
+        });
+      }
+    });
   }
-
-
 
   void _fetchJoinedPosts() async {
     List<Post> fetchedPosts = await Firestore().joinedPostList();
-    print("Fetched Posts: $fetchedPosts");
     if (mounted) {
       setState(() {
         joinedPost = fetchedPosts;
@@ -40,7 +56,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   void _fetchMyPosts() async {
     List<Post> myPostList = await Firestore().myPostList();
-
     if (mounted) {
       setState(() {
         myPosts = myPostList;
@@ -50,7 +65,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   void _fetchCollectedPosts() async {
     List<Post> fetchedCollectedPosts = await Firestore().getCollectedPosts();
-
     if (mounted) {
       setState(() {
         collectedPosts = fetchedCollectedPosts;
@@ -58,62 +72,113 @@ class _MyEventsPageState extends State<MyEventsPage> {
     }
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: TColors.secondary,
+        backgroundColor: Color(0xFFF9AFA6),
         elevation: 0,
       ),
       body: Column(
         children: [
           _buildProfileHeader(),
-          const SizedBox(height: 30),
+          const SizedBox(height: 10),
           _buildFilterButtons(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Expanded(child: _buildEventList()),
         ],
       ),
     );
   }
 
+  // ✅ Cache the Future using _cachedUserFuture
   Widget _buildProfileHeader() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: TColors.secondary,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
+    if (_cachedUserFuture == null) {
+      return Padding(
+        padding: EdgeInsets.all(20),
+        child: Center(child: Text("⚠️ No logged-in user")),
+      );
+    }
+
+    return FutureBuilder<AppUser?>(
+      future: _cachedUserFuture, // ✅ Use cached future
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (snapshot.hasError) {
+          print("❌ Error loading profile: ${snapshot.error}");
+          return Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: Text("Error loading profile")),
+          );
+        }
+        if (!snapshot.hasData || snapshot.data == null) {
+          return Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: Text("No user data available")),
+          );
+        }
+
+        final user = snapshot.data!;
+
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Color(0xFFF9AFA6),
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+          ),
+          child: Column(
             children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: AssetImage('assets/images/profile.jpg'),
-              ),
-              SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Becky Jin',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+              // ✅ Profile Picture with White Border
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
                   ),
-                ],
+                ),
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundImage: user.profilePicture != null
+                      ? NetworkImage(user.profilePicture!)
+                      : AssetImage('assets/images/profile.jpg') as ImageProvider,
+                ),
               ),
+              SizedBox(height: 10),
+
+              // ✅ Display User Name
+              Text(
+                user.userName,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+
+              // ✅ Display Age and City (if available)
+              Text(
+                "${user.age != null ? '${user.age} years old' : ''} · ${user.city ?? ''}",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+
+              // ✅ Display Gender (if available)
+              Text(
+                user.gender != null ? user.gender! : '',
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+              SizedBox(height: 12),
             ],
           ),
-
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -121,7 +186,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Container(
-
         decoration: BoxDecoration(
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(50),
@@ -167,11 +231,13 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
+
   Widget _buildEventList() {
     print("📝 UI is building with ${joinedPost.length} posts");
     List<Post> displayedPost = [];
     switch (_selectedFilter) {
       case 0:
+
         displayedPost = joinedPost;
         break;
         // if (joinedPost.isEmpty) {
@@ -196,6 +262,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
         //   ),
         // );
       case 1:
+
         displayedPost = myPosts;
         // if (myPosts.isEmpty) {
         //   return Expanded(  // ✅ Ensure it takes available space
@@ -221,6 +288,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
         // );
         break;
       case 2:
+
         displayedPost = collectedPosts;
         break;
     }
@@ -262,7 +330,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: TColors.secondary,
+              color: Color(0xFFF9AFA6),
               borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
             ),
             child: Row(
@@ -292,7 +360,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _eventButton("Cancel", Color(0xFFD32F2F), () => _showCancelDialog(), post),
+                    _eventButton("Cancel", Color(0xFFFC5C65), () => _showCancelDialog(), post),
                     _eventButton("detail", TColors.accent,(){} , post),
                   ],
                 ),

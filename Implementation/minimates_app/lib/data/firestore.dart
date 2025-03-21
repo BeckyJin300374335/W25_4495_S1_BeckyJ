@@ -50,7 +50,7 @@ class Firestore {
   Future<void> updateUserProfile({
     required String userName,
     required String email,
-    required String age,
+    required int age,
     required String gender,
     required String city,
   }) async {

@@ -72,12 +72,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
+                      Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white, // ✅ White border
+                          width: 2, // ✅ Border width
+                        ),
+                      ),
+                      child: CircleAvatar(
                         radius: 40,
                         backgroundImage: _profilePictureUrl != null
                             ? NetworkImage(_profilePictureUrl!)
                             : AssetImage('assets/images/profile.jpg') as ImageProvider,
                       ),
+                    ),
                       SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,6 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
+
                     ],
                   ),
                   IconButton(

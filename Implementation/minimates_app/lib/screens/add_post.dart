@@ -350,7 +350,7 @@ class _AddPostState extends State<AddPost> {
                   _showCancelDialog();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFD32F2F),
+                  backgroundColor: Color(0xFFFC5C65),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                 ),
                 child: Text("Cancel", style: TextStyle(color: Colors.white)),

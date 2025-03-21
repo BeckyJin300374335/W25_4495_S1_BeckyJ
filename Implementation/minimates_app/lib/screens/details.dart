@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/data/firestore.dart';
-
 import '../data/data.dart';
+import 'author_details.dart';
 
 class DetailsPage extends StatefulWidget {
   final String title;
@@ -9,11 +9,13 @@ class DetailsPage extends StatefulWidget {
   final String postID;
   final String userID;
 
-  const DetailsPage(
-      {super.key,
-      required this.title,
-      required this.image,
-      required this.postID,required this.userID});
+  const DetailsPage({
+    super.key,
+    required this.title,
+    required this.image,
+    required this.postID,
+    required this.userID,
+  });
 
   @override
   _DetailsPageState createState() => _DetailsPageState();
@@ -22,12 +24,11 @@ class DetailsPage extends StatefulWidget {
 class _DetailsPageState extends State<DetailsPage> {
   bool isCollected = false;
   bool isGoing = false;
-  Post? post = null;
+  Post? post;
 
   void _confirmGoing() {
-    if(isGoing){
-      return;
-    }
+    if (isGoing) return;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -42,11 +43,10 @@ class _DetailsPageState extends State<DetailsPage> {
             onPressed: () {
               Firestore().joinEvent(widget.postID).then((doc) {
                 setState(() {
-                  isGoing = !isGoing;
+                  isGoing = true;
                 });
               });
               Navigator.pop(context);
-
             },
             style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFF9AFA6)),
             child: Text("Yes"),
@@ -61,18 +61,14 @@ class _DetailsPageState extends State<DetailsPage> {
     return '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')} at ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
-
   @override
   void initState() {
-    // TODO: implement initState
+    super.initState();
+
     Firestore().getUserPostRelation(widget.postID).then((value) {
       if (value != null && value.is_going) {
         setState(() {
           isGoing = true;
-        });
-      } else {
-        setState(() {
-          isGoing = false;
         });
       }
     });
@@ -83,26 +79,9 @@ class _DetailsPageState extends State<DetailsPage> {
       });
     });
 
-    // ✅ Load post data (including timestamp)
     Firestore().getPostByID(widget.postID).then((value) {
       setState(() {
         post = value;
-      });
-    });
-
-    // ✅ Check if user has joined the event
-    Firestore().getUserPostRelation(widget.postID).then((value) {
-      if (value != null && value.is_going) {
-        setState(() {
-          isGoing = true;
-        });
-      }
-    });
-
-    // ✅ Check if post is collected
-    Firestore().isPostCollected(widget.postID).then((value) {
-      setState(() {
-        isCollected = value;
       });
     });
   }
@@ -115,7 +94,7 @@ class _DetailsPageState extends State<DetailsPage> {
         backgroundColor: Color(0xFFFCF5F3),
         centerTitle: true,
         title: Image.asset(
-          'assets/images/1.png', // Replace with your logo
+          'assets/logos/MiniMates_color.png',
           height: 30,
           fit: BoxFit.contain,
         ),
@@ -128,12 +107,12 @@ class _DetailsPageState extends State<DetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Section
+            // ✅ Image Section
             Stack(
               children: [
                 ClipRRect(
                   borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(20)),
+                  BorderRadius.vertical(bottom: Radius.circular(20)),
                   child: Image.network(
                     widget.image,
                     width: double.infinity,
@@ -170,32 +149,67 @@ class _DetailsPageState extends State<DetailsPage> {
               ],
             ),
 
-            // User Info Section
+            // ✅ User Info Section
             Padding(
               padding: EdgeInsets.all(16),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: AssetImage('assets/images/1.png'),
-                  ),
-                  SizedBox(width: 10),
-                  FutureBuilder(
-                      future: Firestore()
-                          .getUserById(widget.userID),
+                  GestureDetector(
+                    onTap: () {
+                      // ✅ Navigate to Author Details Page
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AuthorDetailsPage(userID: widget.userID),
+                        ),
+                      );
+                    },
+                    child: FutureBuilder<AppUser>(
+                      future: Firestore().getUserById(widget.userID),
                       builder: (context, snapshot) {
-                        if(snapshot.data != null){
-                          return Text(
-                            snapshot.data!.userName,
-                            style: TextStyle(
-                                fontWeight:
-                                FontWeight.bold),
-                          );
-                        } else {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
                           return CircularProgressIndicator();
                         }
+                        if (snapshot.hasError) {
+                          return Text("Error loading user");
+                        }
+                        if (!snapshot.hasData || snapshot.data == null) {
+                          return Text("Unknown User");
+                        }
 
-                      }),
+                        final author = snapshot.data!;
+
+                        return Row(
+                          children: [
+                            // ✅ Profile Picture with Border
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white, // ✅ White Border
+                                  width: 1,
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                radius: 20,
+                                backgroundImage: author.profilePicture != null
+                                    ? NetworkImage(author.profilePicture!)
+                                    : AssetImage('assets/images/profile.jpg') as ImageProvider,
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              author.userName,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                   Spacer(),
                   Text(
                     post != null ? _formatTimestamp(post!.timestamp) : 'Loading...',
@@ -205,7 +219,7 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
 
-            // Description Section
+            // ✅ Description Section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -216,13 +230,13 @@ class _DetailsPageState extends State<DetailsPage> {
 
             SizedBox(height: 20),
 
-            // Buttons Section (Placed Right Below the Description)
+            // ✅ Buttons Section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Save Button
+                  // ✅ Save Button
                   GestureDetector(
                     onTap: () async {
                       if (isCollected) {
@@ -230,8 +244,6 @@ class _DetailsPageState extends State<DetailsPage> {
                       } else {
                         await Firestore().collectPost(widget.postID);
                       }
-
-                      // ✅ Update UI
                       setState(() {
                         isCollected = !isCollected;
                       });
@@ -251,20 +263,23 @@ class _DetailsPageState extends State<DetailsPage> {
                       ],
                     ),
                   ),
-                  // Going Button
+
+                  // ✅ Going Button
                   GestureDetector(
                     onTap: _confirmGoing,
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                       decoration: BoxDecoration(
                         color: isGoing ? Color(0xFFF9AFA6) : Colors.grey[300],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.event,
-                              color: isGoing ? Colors.white : Colors.black87),
+                          Icon(
+                            Icons.event,
+                            color: isGoing ? Colors.white : Colors.black87,
+                          ),
                           SizedBox(width: 6),
                           Text(
                             isGoing ? "Already Joined" : "Going",

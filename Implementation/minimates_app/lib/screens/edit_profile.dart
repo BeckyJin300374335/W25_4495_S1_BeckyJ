@@ -73,15 +73,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_selectedImage != null) {
       profilePictureUrl = await _firestore.uploadProfilePicture(_selectedImage!);
     }
-
-    await _firestore.updateUserProfile(
-      userName: _usernameController.text,
-      email: _emailController.text,
-      age: _ageController.text,
-      gender: _selectedGender,
-      city: _selectedCity,
-    );
-
+    if(_ageController.text != null ){
+      int? age = int.tryParse(_ageController.text);
+      if(age != null) {
+        await _firestore.updateUserProfile(
+          userName: _usernameController.text,
+          email: _emailController.text,
+          age: age,
+          gender: _selectedGender,
+          city: _selectedCity,
+        );
+      }
+    }
     if (profilePictureUrl != null) {
       print('Profile picture uploaded: $profilePictureUrl');
     }

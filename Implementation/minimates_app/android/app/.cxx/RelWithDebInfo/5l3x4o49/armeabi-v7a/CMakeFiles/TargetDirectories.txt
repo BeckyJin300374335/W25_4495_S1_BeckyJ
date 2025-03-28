@@ -1,2 +1,0 @@
-/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/.cxx/RelWithDebInfo/5l3x4o49/armeabi-v7a/CMakeFiles/edit_cache.dir
-/Users/becky/Desktop/W25_4495_S1_BeckyJ/Implementation/minimates_app/android/app/.cxx/RelWithDebInfo/5l3x4o49/armeabi-v7a/CMakeFiles/rebuild_cache.dir

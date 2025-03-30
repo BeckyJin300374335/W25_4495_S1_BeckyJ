@@ -216,7 +216,7 @@ class Firestore {
 
 
   Future<DocumentReference> addPost(
-      String title, String desc, File imageFile, List<String> tags) async {
+      String title, String desc, File imageFile, List<String> tags, double lagtitude, double longitude, String address, int spot) async {
     final imageUrl = await uploadImage(imageFile, title);
       return await _firestore.collection('posts').add({
         'title': title,
@@ -224,7 +224,11 @@ class Firestore {
         'image': imageUrl,
         'description': desc,
         'tags': tags,
-        'timestamp': FieldValue.serverTimestamp()
+        'timestamp': FieldValue.serverTimestamp(),
+        'latitude': lagtitude,
+        'longitude': longitude,
+        'address': address,
+        'spot': spot
       });
   }
 

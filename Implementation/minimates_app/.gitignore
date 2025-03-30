@@ -3,3 +3,4 @@
 .fvm/
 /build/
 flutterapp-738bb-firebase-adminsdk-fbsvc-8a033f8c22.json
+/android/app/.cxx

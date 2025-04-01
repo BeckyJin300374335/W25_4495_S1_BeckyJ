@@ -35,6 +35,13 @@ class Post {
       userId: data['user_id'] ?? "Unknown User",
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+    };
+  }
 }
 
 class Tag {
@@ -58,6 +65,7 @@ class AppUser {
   int? age;
   String? gender;
   String? city;
+  List<String>? preferences;
 
   AppUser({
     required this.id,
@@ -66,6 +74,7 @@ class AppUser {
     this.age,
     this.gender,
     this.city,
+    this.preferences
   });
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
@@ -78,6 +87,9 @@ class AppUser {
       age: data['age'] != null ? int.tryParse(data['age'].toString()) : null, // ✅ Convert age to int
       gender: data['gender'] ?? "Unknown",
       city: data['city'] ?? "Unknown",
+      preferences: data['preferences'] != null
+          ? List<String>.from(data['preferences'])
+          : [],
     );
   }
 }

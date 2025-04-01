@@ -3,9 +3,12 @@ import 'dart:developer' as developer;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:untitled1/data/data.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+
+import '../model/article.dart';
 
 class Firestore {
   final FirebaseFirestore _firestore =
@@ -45,6 +48,31 @@ class Firestore {
     String user_id = _auth.currentUser!.uid;
     final snapshot = await _firestore.collection('posts').where('user_id', isEqualTo: user_id).get();
     return snapshot.docs.map<Post>((doc) => Post.fromFirestore(doc)).toList();
+  }
+
+//preferences
+  Future<void> savePreferences(List<String> selectedPreferences) async {
+    try {
+      await _firestore.collection("users").doc(_auth.currentUser!.uid).update({
+        'preferences': selectedPreferences,
+        'preferencesUpdatedAt': FieldValue.serverTimestamp(),
+      });
+      developer.log("✅ Preferences saved: $selectedPreferences");
+    } catch (e) {
+      developer.log("❌ Error saving preferences: $e");
+    }
+  }
+
+  Future<List<String>> getUserPreferences() async {
+    try {
+      final doc = await _firestore.collection("users").doc(_auth.currentUser!.uid).get();
+      if (doc.exists && doc.data()!.containsKey("preferences")) {
+        return List<String>.from(doc["preferences"]);
+      }
+    } catch (e) {
+      developer.log("❌ Error fetching preferences: $e");
+    }
+    return [];
   }
 
   Future<void> updateUserProfile({
@@ -270,35 +298,67 @@ class Firestore {
     }).toList();
   }
 
-  Future<void> saveArticles(Map<String, String> articles) async {
-    for (var entry in articles.entries) {
+  Future<List<Post>> postList() async {
+    final snapshot = await _firestore.collection('posts').get();
+    return snapshot.docs.map((doc) {
+      return Post.fromFirestore(doc);
+    }).toList();
+  }
+
+  Future<void> saveArticles(List<Article> articles) async {
+    for (var article in articles) {
       try {
-        await _firestore.collection('articles').doc(entry.key).set({
-          'title': entry.key,
-          'content': entry.value,
-        });
-        developer.log("✅ Saved article: ${entry.key}");
+        // Upload the image file first and get its Firebase URL
+        final imageUrl = await uploadArticleImage(article.image);
+
+        // Create a new article object with the Firebase image URL
+        final updatedArticle = Article(
+          title: article.title,
+          content: article.content,
+          image: imageUrl,
+        );
+
+        await _firestore
+            .collection('articles')
+            .doc(updatedArticle.title)
+            .set(updatedArticle.toFirestore());
+
+        print("✅ Saved article: ${updatedArticle.title}");
       } catch (e) {
-        developer.log("❌ Failed to save article ${entry.key}: $e");
+        print("❌ Failed to save article ${article.title}: $e");
       }
     }
   }
 
 
-  /// ✅ Load articles from Firestore
-  Future<Map<String, String>> getArticles() async {
+  Future<List<Article>> getArticles() async {
     final snapshot = await _firestore.collection('articles').get();
-    Map<String, String> articles = {};
-    developer.log("data: ${snapshot.docs.toString()}");
-    for (var doc in snapshot.docs) {
-      articles[doc['title']] = doc['content'];
-    }
-    return articles;
+    return snapshot.docs.map((doc) {
+      return Article.fromFirestore(doc.data());
+    }).toList();
   }
+
+  Future<String> uploadArticleImage(String fileName) async {
+    final ref = FirebaseStorage.instance.ref().child("articles/$fileName");
+
+    final byteData = await rootBundle.load('assets/images/articles/$fileName');
+    final Uint8List data = byteData.buffer.asUint8List();
+
+    final uploadTask = await ref.putData(data);
+    final downloadUrl = await uploadTask.ref.getDownloadURL();
+
+    print("✅ Uploaded $fileName to Firebase: $downloadUrl");
+    return downloadUrl;
+  }
+
 
   Future<AppUser> getUserById(String? userID) async {
     final snapshot = await _firestore.collection('users').doc(userID).get();
     return AppUser.fromFirestore(snapshot);
+  }
+
+  Future<AppUser> getMySelf() async {
+    return await getUserById(_auth.currentUser!.uid);
   }
 
   Future<String> uploadImage(File imageFile, String postTitle) async {
@@ -309,6 +369,9 @@ class Firestore {
     await uploadTask;
     return uploadTask.snapshot.ref.getDownloadURL();
   }
+
+
+
 
   Future<String> uploadProfilePicture(File imageFile) async {
     try {

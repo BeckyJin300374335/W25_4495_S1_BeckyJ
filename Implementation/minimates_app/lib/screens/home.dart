@@ -2,12 +2,14 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:untitled1/data/firestore.dart';
 import 'package:untitled1/screens/details.dart';
 import 'package:untitled1/screens/add_post.dart';
 import 'package:untitled1/screens/profile.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
+import '../model/article.dart';
 import '../utils/constants/colors.dart';
 import 'article_detail.dart';
 import 'article_list.dart';
@@ -30,16 +32,19 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _city;
   String? _email;
 
-  Article article = Article();
+  ArticleList article = ArticleList();
 
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
-    _loadArticles(); // Load articles when HomeScreen is initialized
+    callGeminiModel().then((value) {
+      print(value.text);
+      print("##################################");
+    });
   }
 
-  Future<Map<String, String>> _loadArticles() async {
+  Future<List<Article>>  _loadArticles() async {
     final articles = await article.loadArticlesFromFirestore();
     return articles;
   }
@@ -142,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Popular Articles
                   SizedBox(
                     height: 250,
-                    child: FutureBuilder<Map<String, String>>(
+                    child: FutureBuilder<List<Article>>(
                       future: _loadArticles(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -163,9 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: articles.length,
                           itemBuilder: (context, index) {
-                            final titles = articles.keys.toList();
-                            final title = titles[index];
-                            final content = articles[title];
+                            final articles = snapshot.data!;
+                            final article = articles[index];
+                            final title = article.title;
+                            final content = article.content;
+
+
 
                             return GestureDetector(
                               onTap: () {
@@ -200,12 +208,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.vertical(
                                           top: Radius.circular(10)),
-                                      child: Image.asset(
-                                        'assets/images/park1.jpg',
+                                      child: Image.network(
+                                        article.image,
                                         height: 120,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
-                                      ),
+                                      )
                                     ),
                                     Padding(
                                       padding: EdgeInsets.all(8),
@@ -458,5 +466,17 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  callGeminiModel() async {
+    final model = GenerativeModel(model: 'gemini-2.5-pro-exp-03-25', apiKey: 'AIzaSyBwmZTKKRECKZwT3SjyEzDsZF7Uk2yq_T0');
+    final postList = await Firestore().postList();
+    final user = await Firestore().getMySelf();
+    final postListJson = postList.map((post) => post.toMap()).toList();
+    final preferenceJson = user.preferences;
+    final prompt = "I have a list of posts in JSON format: ${postListJson} and my preference tags are ${preferenceJson}. Please recommend the posts that I like and output their ID in a list only";
+    print(prompt);
+    final response = await model.generateContent([Content.text(prompt)]);
+    return response;
   }
 }

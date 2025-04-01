@@ -1,12 +1,19 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:untitled1/model/article.dart';
 
 import '../data/firestore.dart';
 
-class Article{
-  Map<String, String> articles = {
-    "Why Your Toddler Only Wants Mom & What to Do About It ":"""
+import 'package:untitled1/model/article.dart';
+
+class ArticleList{
+
+
+
+  final Map<String, Map<String, String>> articles = {
+    "Why Your Toddler Only Wants Mom & What to Do About It": {
+      "content": """
     If your toddler clings to one parent—often Mom—while pushing the other away, you’re not alone. Many families experience this phase, and while it can be frustrating, it’s a natural part of child development. Understanding why it happens and how to handle it can help both parents feel more connected.
 
   Toddlers form strong attachments to caregivers who meet their daily needs. If one parent spends more time feeding, soothing, and caring for them, the child may instinctively seek them out for comfort. This preference doesn’t mean the other parent is any less important—it’s just a reflection of routine and familiarity.
@@ -20,7 +27,10 @@ class Article{
   Parents should work together as a team, ensuring that caregiving responsibilities are shared. Rotating tasks like bath time, meals, and bedtime can help a child see both parents as sources of comfort and support. Open communication between parents is key—expressing frustrations and celebrating small wins can make this phase easier for everyone.
 
   While it may be tough when a toddler insists on one parent, remember that preferences shift over time. Patience, consistency, and a united approach will help strengthen family bonds, ensuring that both parents feel equally valued in their child’s life. """,
-    "Fun Things to Do at Home With Kids ":"""
+      "image": "1.jpg"
+    },
+    "Fun Things to Do at Home With Kids": {
+      "content": """
     Looking for ways to keep your kids entertained at home? Whether it's a rainy day or a relaxing weekend, fun activities can bring your family closer and spark creativity. From arts and crafts to backyard games, here are some great ways to make the most of your time together. 
 
 Spending quality time at home strengthens family bonds and provides a sense of security for kids. Engaging in hands-on activities fosters creativity, encourages problem-solving, and helps kids develop important life skills. Simple moments—like baking together, building a blanket fort, or playing a board game—create lasting memories. 
@@ -49,7 +59,10 @@ To make activities even more enjoyable, customize them to your child’s interes
 
 No matter what activity you choose, the key is to have fun and cherish the moments spent together. Home is where the best memories are made! 
     """,
-    "10 Unique Ways to Paint with Kids ":"""
+      "image": "2.jpg"
+    },
+    "10 Unique Ways to Paint with Kids": {
+      "content": """
     Painting with kids is always fun, but why not make it even more exciting with some creative techniques? Here are ten unique ways to turn painting into a memorable experience for the whole family. 
 
 Fly Swatter Painting 
@@ -94,7 +107,10 @@ Save empty eggshells, fill them with paint, and let kids smash them onto a canva
 
 Painting is more than just an activity—it’s a way for kids to explore, create, and express themselves. Try these techniques to make art time even more fun and memorable! 
     """,
-    "8 Best Zoo Activities for Preschoolers ":"""
+      "image": "3.jpg"
+    },
+    "8 Best Zoo Activities for Preschoolers": {
+      "content": """
     If your little one loves animals, a trip to the zoo can be an exciting learning adventure. Even if you can’t visit in person, you can bring the zoo experience home with fun, engaging activities that balance play and education. Here are eight creative ways to spark their love for wildlife. 
 
 Make a Zoo Memory Game 
@@ -131,7 +147,10 @@ Fill a bin with rice or sand and hide small animal toys inside. Let kids dig and
 
 Whether you’re heading to the zoo or bringing the adventure home, these activities will keep your preschooler engaged, learning, and having fun! 
     """,
-    "Easy Activity: Magic Potions for Kids ":"""
+      "image": "4.jpg"
+    },
+    "Easy Activity: Magic Potions for Kids": {
+      "content": """
     Looking for a fun and easy indoor activity? Making magic potions is a creative and exciting way to keep kids entertained while exploring science through play. Using simple household items, this activity encourages imagination and curiosity. 
 
 How to Make Magic Potions 
@@ -158,7 +177,7 @@ This activity keeps little hands busy for hours as they discover new color combi
 
 For more ways to keep kids entertained, try exploring sensory play, DIY crafts, and hands-on experiments that spark their imagination! 
     """,
-    "How to Handle Toddler Tantrums Calmly":"""
+      "How to Handle Toddler Tantrums Calmly":"""
     Toddler tantrums are one of the most challenging aspects of parenting. From screaming in the grocery store to refusing to get dressed in the morning, tantrums can leave parents feeling helpless and frustrated. But understanding why tantrums happen—and how to respond calmly—can make a big difference.
 
 Why Toddlers Have Tantrums
@@ -179,7 +198,40 @@ Give them opportunities to express themselves through play and talking.
 Offer praise when they handle frustration well.
 Tantrums are hard, but they’re temporary. With patience and calm guidance, your toddler will learn how to handle big emotions more effectively over time.
     """,
-    "Simple Science Experiments to Try at Home":"""
+      "image": "5.jpg"
+    },
+    "How to Handle Toddler Tantrums Calmly": {
+      "content": """
+Fear of the dark is a common childhood fear that can affect bedtime routines and overall sleep quality. While it's a normal stage of development, it can feel overwhelming for both children and parents. The good news is that with reassurance and a few practical strategies, kids can learn to feel safe and secure in the dark.
+
+Why Kids Fear the Dark  
+Children have vivid imaginations, and at night when the lights go out, those imaginations can turn shadows into monsters or unfamiliar sounds into something scary. This fear often begins around preschool age when kids start to understand the concept of danger but haven’t yet learned what’s real and what’s not. Big changes—like moving to a new house or watching a scary show—can also trigger nighttime anxiety.
+
+How to Comfort Your Child  
+Talk About Their Fears – Ask gentle questions and listen carefully to what your child is scared of. Avoid brushing it off; instead, validate their feelings by saying, “It’s okay to feel scared sometimes.”
+
+Use a Night Light – A soft, warm night light can help make the room feel more welcoming. Avoid bright lights that might interfere with sleep.
+
+Create a Bedtime Ritual – A calm, predictable bedtime routine can help kids wind down. Include soothing activities like reading, cuddling, or playing soft music.
+
+Use Comfort Items – Allow your child to sleep with a favorite stuffed animal, blanket, or item that makes them feel secure.
+
+Avoid Scary Content – Be mindful of what your child watches during the day. Even seemingly harmless cartoons can sometimes spark nighttime fears.
+
+Teach Coping Strategies  
+• Show them how to take deep breaths to calm down.  
+• Practice “bravery building” by slowly encouraging them to turn off the lights for a few seconds.  
+• Help them imagine a “safe space” or calming image they can think about at night.
+
+Be Patient and Reassuring  
+Overcoming a fear of the dark takes time. Celebrate small wins, like staying in bed all night or turning off the light for a few minutes. Remind your child that they are safe and that you’re close by if they need you.
+
+With gentle support and consistent routines, your child will eventually learn to feel comfortable in the dark—and gain confidence that can extend to other areas of life.
+  """,
+      "image": "6.jpg"
+    },
+    "Simple Science Experiments to Try at Home": {
+      "content": """
     Looking for fun and educational activities to do with your kids? Science experiments are a perfect way to spark curiosity and introduce kids to basic scientific concepts—all while having fun! Here are some easy experiments you can try at home using everyday items.
 
 1. Baking Soda and Vinegar Volcano
@@ -209,7 +261,10 @@ Thread a string through the straw and tie the string between two chairs.
 Let go of the balloon and watch it zip across the string!
 Why It Works: The escaping air propels the balloon forward, demonstrating the principle of action and reaction.
     """,
-    "Creative Ways to Encourage Reading at Home":"""
+      "image": "7.jpg"
+    },
+    "Creative Ways to Encourage Reading at Home": {
+      "content": """
     Developing a love of reading early on sets the foundation for lifelong learning. But getting kids to sit down with a book isn’t always easy. Here are some creative ways to make reading more enjoyable at home.
 
 1. Create a Cozy Reading Space
@@ -232,7 +287,10 @@ Look at recipes together.
 6. Use Audio Books
 Listening to stories helps kids build vocabulary and comprehension.
     """,
-    "Mindfulness Activities for Kids":"""
+      "image": "8.jpg"
+    },
+    "Mindfulness Activities for Kids": {
+      "content": """
     Mindfulness helps kids manage their emotions, build focus, and reduce stress. Teaching kids mindfulness early on gives them tools to handle difficult feelings in a healthy way.
 
 1. Breathing Exercises
@@ -250,7 +308,10 @@ Have your child write down things they’re grateful for and place them in a jar
 5. Body Scan
 Ask your child to lie down and slowly focus on different parts of their body, starting from their toes and moving up to their head.
     """,
-    "How to Handle Sibling Rivalry":"""
+      "image": "9.jpg"
+    },
+    "How to Handle Sibling Rivalry": {
+      "content": """
     Sibling rivalry is a natural part of growing up, but it can create tension in the household. Here’s how to help your kids develop healthy sibling relationships.
 
 1. Encourage Teamwork
@@ -272,41 +333,40 @@ Make time for one-on-one activities with each child. This helps them feel valued
 Encourage your kids to cheer each other on when they accomplish something.
 
 With patience and guidance, sibling rivalry can turn into a foundation for lifelong friendship.
-    """
+    """,
+      "image": "10.jpg"
+    },
   };
 
-  /// ✅ Load articles from Firestore
-  Future<Map<String, String>> loadArticlesFromFirestore() async {
+  /// Convert map to List<Article>
+  List<Article> getHardcodedArticles() {
+    return articles.entries.map((entry) {
+      return Article(
+        title: entry.key,
+        content: entry.value['content'] ?? '',
+        image: entry.value['image'] ?? '',
+      );
+    }).toList();
+  }
+
+
+
+  Future<List<Article>> loadArticlesFromFirestore() async {
+    return await Firestore().getArticles(); // getArticles already returns List<Article>
+
+  }
+
+  /// Save a hardcoded list of articles to Firestore (used once to initialize)
+  static Future<void> saveArticlesToFirestore(List<Article> articles) async {
     try {
-      final result = await Firestore().getArticles();
-      if (result.isNotEmpty) {
-        articles = result;
-        return articles;
-      } else {
-        print('No articles found');
-        articles = {};
-      }
+      await Firestore().saveArticles(articles); // Pass the full list
     } catch (e) {
-      print('Error loading articles: $e');
-      articles = {};
-    }
-    return articles;
-  }
-
-  /// ✅ Save articles to Firestore
-  Future<void> saveArticlesToFirestore() async {
-    for (var entry in articles.entries) {
-      try {
-        await Firestore().saveArticles({entry.key: entry.value});
-        print("✅ Article saved: ${entry.key}");
-      } catch (e) {
-        print("❌ Error saving article: ${entry.key} - $e");
-      }
+      print("❌ Error saving articles - $e");
     }
   }
 
-  /// ✅ Method to get a single article by title
-  String? getArticle(String title) {
+  /// ✅ Get article content + image by title
+  Map<String, String>? getArticle(String title) {
     return articles[title];
   }
 

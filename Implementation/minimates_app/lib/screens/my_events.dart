@@ -388,6 +388,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
         // ✅ Refresh collected posts after returning from DetailsPage
         _fetchCollectedPosts();
+        _fetchJoinedPosts();
+        _fetchMyPosts();
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,

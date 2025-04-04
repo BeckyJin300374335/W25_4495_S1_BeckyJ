@@ -14,30 +14,18 @@ class MyEventsPage extends StatefulWidget {
 }
 
 class _MyEventsPageState extends State<MyEventsPage> {
-  int _selectedFilter = 0; // 0: Upcoming, 1: Past, 2: Cancelled
-  List<Post> joinedPost = [];
-  List<Post> myPosts = [];
-  List<Post> collectedPosts = [];
-
-  // ✅ Cache the future
+  int _selectedFilter = 0;
   Future<AppUser?>? _cachedUserFuture;
 
   @override
   void initState() {
     super.initState();
-    _fetchJoinedPosts();
-    _fetchMyPosts();
-    _fetchCollectedPosts();
-
-    // ✅ Cache the future in initState so it runs only once
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null) {
-        print("✅ User logged in: ${user.uid}");
         setState(() {
           _cachedUserFuture = Firestore().getUserById(user.uid);
         });
       } else {
-        print("⚠️ User logged out");
         setState(() {
           _cachedUserFuture = null;
         });
@@ -45,31 +33,25 @@ class _MyEventsPageState extends State<MyEventsPage> {
     });
   }
 
-  void _fetchJoinedPosts() async {
-    List<Post> fetchedPosts = await Firestore().joinedPostList();
-    if (mounted) {
-      setState(() {
-        joinedPost = fetchedPosts;
-      });
+  Future<List<Post>> _getCurrentList() async {
+    List<Post> posts;
+    final now = DateTime.now();
+    switch (_selectedFilter) {
+      case 0:
+        posts = await Firestore().joinedPostList();
+        posts = posts.where((post) => post.startTime != null && post.startTime!.isAfter(now)).toList();
+        break;
+      case 1:
+        posts = await Firestore().joinedPostList();
+        posts = posts.where((post) => post.startTime != null && post.startTime!.isBefore(now)).toList();
+        break;
+      case 2:
+        posts = await Firestore().getCollectedPosts();
+        break;
+      default:
+        posts = [];
     }
-  }
-
-  void _fetchMyPosts() async {
-    List<Post> myPostList = await Firestore().myPostList();
-    if (mounted) {
-      setState(() {
-        myPosts = myPostList;
-      });
-    }
-  }
-
-  void _fetchCollectedPosts() async {
-    List<Post> fetchedCollectedPosts = await Firestore().getCollectedPosts();
-    if (mounted) {
-      setState(() {
-        collectedPosts = fetchedCollectedPosts;
-      });
-    }
+    return posts;
   }
 
   @override
@@ -92,7 +74,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-  // ✅ Cache the Future using _cachedUserFuture
   Widget _buildProfileHeader() {
     if (_cachedUserFuture == null) {
       return Padding(
@@ -102,7 +83,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
     }
 
     return FutureBuilder<AppUser?>(
-      future: _cachedUserFuture, // ✅ Use cached future
+      future: _cachedUserFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Padding(
@@ -111,7 +92,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
           );
         }
         if (snapshot.hasError) {
-          print("❌ Error loading profile: ${snapshot.error}");
           return Padding(
             padding: EdgeInsets.all(20),
             child: Center(child: Text("Error loading profile")),
@@ -135,14 +115,10 @@ class _MyEventsPageState extends State<MyEventsPage> {
           ),
           child: Column(
             children: [
-              // ✅ Profile Picture with White Border
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: CircleAvatar(
                   radius: 40,
@@ -152,8 +128,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 ),
               ),
               SizedBox(height: 10),
-
-              // ✅ Display User Name
               Text(
                 user.userName,
                 style: TextStyle(
@@ -162,16 +136,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
                   color: Colors.white,
                 ),
               ),
-
-              // ✅ Display Age and City (if available)
               Text(
                 "${user.age != null ? '${user.age} years old' : ''} · ${user.city ?? ''}",
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
-
-              // ✅ Display Gender (if available)
               Text(
-                user.gender != null ? user.gender! : '',
+                user.gender ?? '',
                 style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
               SizedBox(height: 12),
@@ -194,8 +164,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _filterButton("Upcoming", 0),
-            _filterButton("Posts", 1),
-            _filterButton("Collects", 2),
+            _filterButton("Past", 1),
+            _filterButton("Likes", 2),
           ],
         ),
       ),
@@ -231,92 +201,35 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-
   Widget _buildEventList() {
-    print("📝 UI is building with ${joinedPost.length} posts");
-    List<Post> displayedPost = [];
-    switch (_selectedFilter) {
-      case 0:
+    return FutureBuilder<List<Post>>(
+      future: _getCurrentList(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        final posts = snapshot.data ?? [];
 
-        displayedPost = joinedPost;
-        break;
-        // if (joinedPost.isEmpty) {
-        //   return Expanded(  // ✅ Ensure it takes available space
-        //     child: Center(
-        //       child: Text(
-        //         "No joined events found.",
-        //         style: TextStyle(color: Colors.black54, fontSize: 16),
-        //       ),
-        //     ),
-        //   );
-        // }
-        // return Expanded( // ✅ Ensure ListView is inside Expanded
-        //   child: ListView.builder(
-        //     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        //     itemCount: joinedPost.length,
-        //     itemBuilder: (context, index) {
-        //       final post = joinedPost[index];
-        //       print("🎉 Rendering event: ${post.title}");
-        //       return _buildEventCard(post);
-        //     },
-        //   ),
-        // );
-      case 1:
+        if (posts.isEmpty) {
+          return Center(
+            child: Text(
+              "No joined events found.",
+              style: TextStyle(color: Colors.black54, fontSize: 16),
+            ),
+          );
+        }
 
-        displayedPost = myPosts;
-        // if (myPosts.isEmpty) {
-        //   return Expanded(  // ✅ Ensure it takes available space
-        //     child: Center(
-        //       child: Text(
-        //         "No joined events found.",
-        //         style: TextStyle(color: Colors.black54, fontSize: 16),
-        //       ),
-        //     ),
-        //   );
-        // }
-        //
-        // return Expanded( // ✅ Ensure ListView is inside Expanded
-        //   child: ListView.builder(
-        //     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        //     itemCount: myPosts.length,
-        //     itemBuilder: (context, index) {
-        //       final post = myPosts[index];
-        //       print("🎉 Rendering event: ${post.title}");
-        //       return _buildEventCard(post);
-        //     },
-        //   ),
-        // );
-        break;
-      case 2:
-
-        displayedPost = collectedPosts;
-        break;
-    }
-    if (displayedPost.isEmpty) {
-      return Expanded(  // ✅ Ensure it takes available space
-        child: Center(
-          child: Text(
-            "No joined events found.",
-            style: TextStyle(color: Colors.black54, fontSize: 16),
-          ),
-        ),
-      );
-    }
-    return Expanded( // ✅ Ensure ListView is inside Expanded
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-        itemCount: displayedPost.length,
-        itemBuilder: (context, index) {
-          final post = displayedPost[index];
-          print("🎉 Rendering event: ${post.title}");
-          return _buildEventCard(post);
-        },
-      ),
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return _buildEventCard(post);
+          },
+        );
+      },
     );
-
-
   }
-
 
   Widget _buildEventCard(Post post) {
     return Container(
@@ -336,8 +249,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Text(post.tags.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                Text(post.timestamp.toString(), style: TextStyle(color: Colors.white)),
+                Text(post.startTime.toString(), style: TextStyle(color: Colors.white)),
               ],
             ),
           ),
@@ -350,10 +262,10 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post.title, style: TextStyle(color: Colors.black, fontSize: TSizes.fontSizeMd,fontWeight: FontWeight.bold)),
+                Text(post.title, style: TextStyle(color: Colors.black, fontSize: TSizes.fontSizeMd, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
                 Text(
-                  post.description.toString(),
+                  post.description,
                   style: TextStyle(color: Colors.black, fontSize: TSizes.fontSizeSm, fontWeight: FontWeight.normal),
                 ),
                 const SizedBox(height: 10),
@@ -361,7 +273,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _eventButton("Cancel", Color(0xFFFC5C65), () => _showCancelDialog(), post),
-                    _eventButton("detail", TColors.accent,(){} , post),
+                    _eventButton("detail", TColors.accent, () {}, post),
                   ],
                 ),
               ],
@@ -374,7 +286,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   Widget _eventButton(String title, Color color, VoidCallback onPressed, Post post) {
     return ElevatedButton(
-      onPressed: ()async {
+      onPressed: () async {
         await Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => DetailsPage(
@@ -385,11 +297,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
             ),
           ),
         );
-
-        // ✅ Refresh collected posts after returning from DetailsPage
-        _fetchCollectedPosts();
-        _fetchJoinedPosts();
-        _fetchMyPosts();
+        setState(() {});
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -399,18 +307,17 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-
   void _showCancelDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        titlePadding: EdgeInsets.zero, // Remove default padding
+        titlePadding: EdgeInsets.zero,
         title: Container(
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: TColors.secondary, // Title background color
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)), // Rounded top corners
+            color: TColors.secondary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Text(
             "Confirm Cancellation",

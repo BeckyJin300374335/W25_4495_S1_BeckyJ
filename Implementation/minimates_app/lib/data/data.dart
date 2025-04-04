@@ -8,6 +8,9 @@ class Post {
   List<String> tags;
   DateTime timestamp;
   String userId;
+  DateTime? startTime;
+  DateTime? endTime;
+  String? address;
 
   Post({
     required this.id,
@@ -17,29 +20,42 @@ class Post {
     required this.tags,
     required this.timestamp,
     required this.userId,
+    this.startTime,
+    this.endTime,
+    this.address,
   });
 
-  // Factory constructor to convert Firestore DocumentSnapshot into a Post object
   factory Post.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
 
     return Post(
       id: doc.id,
       title: data['title'] ?? "No Title",
-      image: data['image'] ?? "", // Handle missing image case
+      image: data['image'] ?? "",
       description: data['description'] ?? "No Description",
-      tags: List<String>.from(data['tags'] ?? []), // Ensure 'tags' is a list of strings
+      tags: List<String>.from(data['tags'] ?? []),
       timestamp: data['timestamp'] is Timestamp
-          ? (data['timestamp'] as Timestamp).toDate() // Convert Firestore Timestamp to DateTime
-          : DateTime.now(), // Fallback to current time if no timestamp exists
+          ? (data['timestamp'] as Timestamp).toDate()
+          : DateTime.now(),
       userId: data['user_id'] ?? "Unknown User",
+      startTime: data['start_time'] != null && data['start_time'] is Timestamp
+          ? (data['start_time'] as Timestamp).toDate()
+          : null,
+      endTime: data['end_time'] != null && data['end_time'] is Timestamp
+          ? (data['end_time'] as Timestamp).toDate()
+          : null,
+      address: data['address'],
     );
   }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
       'description': description,
+      'start_time': startTime,
+      'end_time': endTime,
+      'address': address,
     };
   }
 }
@@ -55,8 +71,6 @@ class UserPostRelation {
   bool is_going;
   UserPostRelation(this.user_id, this.post_id, this.is_going);
 }
-
-// {'userName': name, 'email': email, 'password': password, 'profilePicture': url, 'age': age, 'gender': gender, 'city': city}
 
 class AppUser {
   String userName;
@@ -74,7 +88,7 @@ class AppUser {
     this.age,
     this.gender,
     this.city,
-    this.preferences
+    this.preferences,
   });
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
@@ -84,7 +98,7 @@ class AppUser {
       id: doc.id,
       userName: data['userName'] ?? "No Title",
       profilePicture: data['profilePicture'] ?? null,
-      age: data['age'] != null ? int.tryParse(data['age'].toString()) : null, // ✅ Convert age to int
+      age: data['age'] != null ? int.tryParse(data['age'].toString()) : null,
       gender: data['gender'] ?? "Unknown",
       city: data['city'] ?? "Unknown",
       preferences: data['preferences'] != null

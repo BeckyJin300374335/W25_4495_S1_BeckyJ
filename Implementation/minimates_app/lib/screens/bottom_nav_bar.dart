@@ -3,6 +3,7 @@ import 'package:untitled1/screens/profile.dart';
 import '../auth/main_page.dart';
 import 'add_post.dart';
 import '../utils/constants/colors.dart';
+import 'chats.dart';
 import 'my_events.dart';
 
 class BottomNavBar extends StatefulWidget {
@@ -17,7 +18,8 @@ class _BottomNavBarState extends State<BottomNavBar> {
     Main_Page(),       // Home (index 0)
     AddPost(showBackArrow: false),         // Add Post (index 1)
     ProfileScreen(),   // Profile (index 2)
-    MyEventsPage(),  // Schedule (index 3)
+    MyEventsPage(),
+    ChatsPage(),// Schedule (index 3)
   ];
 
   void _onItemTapped(int index) {
@@ -68,6 +70,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'MyEvents',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'Chats',
           ),
         ],
       ),

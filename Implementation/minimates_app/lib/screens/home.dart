@@ -26,6 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final Firestore _firestore = Firestore();
   String? _profilePictureUrl;
 
+  List<String> recommendedPostIds = [];
+  bool showRecommendations = false;
+
   String? _username = '';
   int? _age;
   String? _gender;
@@ -146,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   // Popular Articles
                   SizedBox(
-                    height: 250,
+                    height: 230,
                     child: FutureBuilder<List<Article>>(
                       future: _loadArticles(),
                       builder: (context, snapshot) {
@@ -183,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (context) => ArticleDetailsPage(
                                       title: title,
                                       content: content ?? '',
+                                      image: article.image,
                                     ),
                                   ),
                                 );

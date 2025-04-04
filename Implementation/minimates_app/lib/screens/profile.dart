@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: TColors.secondary,
+        backgroundColor: TColors.primary,
         centerTitle: true,
         // title: Text(
         //   'Profile',
@@ -64,7 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: TColors.secondary,
+                color: TColors.primary,
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
               ),
               child: Row(
@@ -141,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _notificationsEnabled = value;
                         });
                       },
-                      activeColor: TColors.secondary,
+                      activeColor: TColors.primary,
                     ),
                   ),
                   SizedBox(height: 10),
@@ -154,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _loadUserProfile(); // Reload profile after editing
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: TColors.secondary,
+                        backgroundColor: TColors.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),

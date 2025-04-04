@@ -39,7 +39,6 @@ class _AddPostState extends State<AddPost> {
 
   @override
   void initState() {
-    // title.text= widget.location.toString();
     super.initState();
   }
 
@@ -48,14 +47,10 @@ class _AddPostState extends State<AddPost> {
       context: context,
       startInitialDate: DateTime.now(),
       startFirstDate: DateTime(1600).subtract(const Duration(days: 3652)),
-      startLastDate: DateTime.now().add(
-        const Duration(days: 3652),
-      ),
+      startLastDate: DateTime.now().add(const Duration(days: 3652)),
       endInitialDate: DateTime.now(),
       endFirstDate: DateTime(1600).subtract(const Duration(days: 3652)),
-      endLastDate: DateTime.now().add(
-        const Duration(days: 3652),
-      ),
+      endLastDate: DateTime.now().add(const Duration(days: 3652)),
       is24HourMode: false,
       isShowSeconds: false,
       minutesInterval: 1,
@@ -67,20 +62,13 @@ class _AddPostState extends State<AddPost> {
       ),
       transitionBuilder: (context, anim1, anim2, child) {
         return FadeTransition(
-          opacity: anim1.drive(
-            Tween(
-              begin: 0,
-              end: 1,
-            ),
-          ),
+          opacity: anim1.drive(Tween(begin: 0, end: 1)),
           child: child,
         );
       },
       transitionDuration: const Duration(milliseconds: 200),
       barrierDismissible: true,
     );
-    // Handle the selected dates here
-    // **Update UI with selected date & time**
     if (dateTimeList != null && dateTimeList.length == 2) {
       setState(() {
         _startTime = dateTimeList[0];
@@ -89,7 +77,6 @@ class _AddPostState extends State<AddPost> {
     }
   }
 
-  /// **Format Date/Time for Display**
   String formatDateTime(DateTime? dateTime) {
     if (dateTime == null) return '';
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}${dateTime.hour >= 12 ? 'pm' : 'am'}';
@@ -100,13 +87,12 @@ class _AddPostState extends State<AddPost> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        titlePadding: EdgeInsets.zero, // Remove default padding
+        titlePadding: EdgeInsets.zero,
         title: Container(
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: TColors.secondary, // Title background color
-            borderRadius: BorderRadius.vertical(
-                top: Radius.circular(28)), // Rounded top corners
+            color: TColors.secondary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Text(
             "Confirm Cancellation",
@@ -118,8 +104,7 @@ class _AddPostState extends State<AddPost> {
             textAlign: TextAlign.center,
           ),
         ),
-        content: Text("Discard this post?",
-            style: TextStyle(color: TColors.accent, fontSize: 16)),
+        content: Text("Discard this post?", style: TextStyle(color: TColors.accent, fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -128,8 +113,6 @@ class _AddPostState extends State<AddPost> {
           TextButton(
             onPressed: () {
               Navigator.popUntil(context, (route) => route.isFirst);
-
-              // Handle cancellation logic here
             },
             child: Text("Yes", style: TextStyle(color: TColors.accent)),
           ),
@@ -147,19 +130,15 @@ class _AddPostState extends State<AddPost> {
         elevation: 0,
         leading: widget.showBackArrow
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              )
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        )
             : null,
         title: const Text(
           'Create Post',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
         ),
         centerTitle: true,
       ),
@@ -172,17 +151,12 @@ class _AddPostState extends State<AddPost> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title Input Field
-              _titleInputField(
-                  'Enter title...', TextInputType.text, title, 1, titleNode),
+              _titleInputField('Enter title...', TextInputType.text, title, 1, titleNode),
               const SizedBox(height: 20),
-              _titleInputField('Enter description...', TextInputType.multiline,
-                  desc, 5, descNode),
+              _titleInputField('Enter description...', TextInputType.multiline, desc, 5, descNode),
               const SizedBox(height: 10),
-              // **Duration Picker Row**
               Row(
                 children: [
-                  // **Time Icon & Duration Button**
                   TextButton.icon(
                     onPressed: () {
                       showDateRangePicker();
@@ -192,34 +166,23 @@ class _AddPostState extends State<AddPost> {
                       (_startTime == null || _endTime == null)
                           ? "Please select the time:"
                           : "${formatDateTime(_startTime)} - ${formatDateTime(_endTime)}",
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
                     ),
                     style: TextButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       backgroundColor: Colors.grey[200],
                     ),
                   ),
                 ],
               ),
-              // Image Upload Widget
               ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: 100,
-                  maxHeight: 200, // ✅ Define height to avoid size conflict
-                ),
+                constraints: BoxConstraints(minHeight: 100, maxHeight: 200),
                 child: _imageUploadWidget(),
               ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               Container(
-                margin: EdgeInsets.symmetric(vertical: 10),
+                margin: EdgeInsets.symmetric(vertical: 5),
                 height: 40,
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: FutureBuilder(
@@ -229,65 +192,51 @@ class _AddPostState extends State<AddPost> {
                       if (tagList != null) {
                         return ListView(
                           scrollDirection: Axis.horizontal,
-                          children: tagList
-                              .map((tag) => GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedFilters.contains(tag.name)
-                                            ? selectedFilters.remove(tag.name)
-                                            : selectedFilters.add(tag.name);
-                                      });
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 15, vertical: 8),
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 5),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            selectedFilters.contains(tag.name)
-                                                ? TColors.secondary
-                                                : Colors.grey[300],
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        tag.name,
-                                        style: TextStyle(
-                                          color:
-                                              selectedFilters.contains(tag.name)
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ))
-                              .toList(),
+                          children: tagList.map((tag) => GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedFilters.contains(tag.name)
+                                    ? selectedFilters.remove(tag.name)
+                                    : selectedFilters.add(tag.name);
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                color: selectedFilters.contains(tag.name)
+                                    ? TColors.secondary
+                                    : Colors.grey[300],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                tag.name,
+                                style: TextStyle(
+                                  color: selectedFilters.contains(tag.name) ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                          )).toList(),
                         );
                       } else {
                         return CircularProgressIndicator();
                       }
                     }),
               ),
-              const SizedBox(height: 20),
-              _titleInputField('', TextInputType.streetAddress,
-                  address, 5, addressNode),
+              const SizedBox(height: 10),
               SizedBox(
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context)
-                        .push(MaterialPageRoute(
-                      builder: (BuildContext context) => GoogleMapFlutter(),
-                    ))
+                        .push(MaterialPageRoute(builder: (BuildContext context) => GoogleMapFlutter()))
                         .then((location) {
                       longitude = location.longitude;
                       latitude = location.latitude;
-                      placemarkFromCoordinates(latitude!, longitude!)
-                          .then((placemarks) {
+                      placemarkFromCoordinates(latitude!, longitude!).then((placemarks) {
                         var output = 'No results found.';
                         if (placemarks.isNotEmpty) {
                           output = placemarks[0].toString();
                         }
-
                         setState(() {
                           address.text = output;
                         });
@@ -299,23 +248,16 @@ class _AddPostState extends State<AddPost> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.secondary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    backgroundColor: TColors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 3),
                   ),
-                  child: Text(
-                    "Set Location",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  child: Text("Set Location", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
-              // Post Button
+              const SizedBox(height: 10),
+              _titleInputField('', TextInputType.streetAddress, address, 3, addressNode),
+              const SizedBox(height: 10),
               _cancelPostButton(),
             ],
           ),
@@ -324,9 +266,7 @@ class _AddPostState extends State<AddPost> {
     );
   }
 
-  /// **Title Input Field**
-  Widget _titleInputField(String hintText, TextInputType inputType,
-      TextEditingController controller, int maxLines, FocusNode? node) {
+  Widget _titleInputField(String hintText, TextInputType inputType, TextEditingController controller, int maxLines, FocusNode? node) {
     return TextField(
       maxLines: maxLines,
       controller: controller,
@@ -334,8 +274,7 @@ class _AddPostState extends State<AddPost> {
       keyboardType: inputType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
+        hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.grey),
         filled: true,
         fillColor: Colors.grey[200],
         border: OutlineInputBorder(
@@ -343,12 +282,10 @@ class _AddPostState extends State<AddPost> {
           borderSide: BorderSide.none,
         ),
       ),
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.black),
     );
   }
 
-  /// **Image Upload Widget**
   Widget _imageUploadWidget() {
     return Stack(
       alignment: Alignment.bottomRight,
@@ -356,18 +293,8 @@ class _AddPostState extends State<AddPost> {
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: (_selectedImage != null)
-              ? Image.file(
-                  _selectedImage!,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                )
-              : Image.asset(
-                  'assets/images/upload_image.png',
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                ),
+              ? Image.file(_selectedImage!, width: double.infinity, height: 200, fit: BoxFit.cover)
+              : Image.asset('assets/images/upload_image.png', width: double.infinity, height: 200, fit: BoxFit.cover),
         ),
         Positioned(
           bottom: 10,
@@ -379,14 +306,10 @@ class _AddPostState extends State<AddPost> {
             child: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: TColors.secondary, // Matching theme color
+                color: TColors.primary,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                Icons.camera_alt,
-                color: Colors.white,
-                size: 30,
-              ),
+              child: Icon(Icons.camera_alt, color: Colors.white, size: 30),
             ),
           ),
         )
@@ -394,30 +317,39 @@ class _AddPostState extends State<AddPost> {
     );
   }
 
-  /// **Post Button**
   Widget _cancelPostButton() {
     return Center(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           SizedBox(
-              child: ElevatedButton(
-            onPressed: () {
-              _showCancelDialog();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFFC5C65),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
+            child: ElevatedButton(
+              onPressed: () {
+                _showCancelDialog();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFFC5C65),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              ),
+              child: Text("Cancel", style: TextStyle(color: Colors.white)),
             ),
-            child: Text("Cancel", style: TextStyle(color: Colors.white)),
-          )),
+          ),
           SizedBox(
             child: ElevatedButton(
               onPressed: () {
-                if (_selectedImage != null) {
-                  Firestore().addPost(title.text, desc.text, _selectedImage!,
-                      selectedFilters.toList(), latitude!, longitude!, address.text, 1);
+                if (_selectedImage != null && _startTime != null && _endTime != null) {
+                  Firestore().addPost(
+                    title.text,
+                    desc.text,
+                    _selectedImage!,
+                    selectedFilters.toList(),
+                    latitude!,
+                    longitude!,
+                    address.text,
+                    1,
+                    _startTime!,
+                    _endTime!,
+                  );
                 }
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (BuildContext context) => BottomNavBar(),
@@ -425,19 +357,10 @@ class _AddPostState extends State<AddPost> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: TColors.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               ),
-              child: Text(
-                "Post",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+              child: Text("Post", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ),
         ],
@@ -445,18 +368,13 @@ class _AddPostState extends State<AddPost> {
     );
   }
 
-  /// **Bottom Sheet for Image Selection**
   void _showImageSourceDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Upload a Picture",
-          style: TextStyle(
-              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-        ),
+        title: Text("Upload a Picture", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -468,30 +386,23 @@ class _AddPostState extends State<AddPost> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel",
-                style: TextStyle(color: TColors.secondary, fontSize: 16)),
+            child: Text("Cancel", style: TextStyle(color: TColors.secondary, fontSize: 16)),
           ),
         ],
       ),
     );
   }
 
-  /// **Image Source Selection Button**
   Widget _imageSourceButton(IconData icon, String label, ImageSource source) {
     return TextButton.icon(
       icon: Icon(icon, color: Colors.black),
       onPressed: () {
         _takePhoto(source);
       },
-      label: Text(
-        label,
-        style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
-      ),
+      label: Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
     );
   }
 
-  /// **Pick Image from Camera/Gallery**
   void _takePhoto(ImageSource source) async {
     final pickedFile = await picker.pickImage(source: source);
     setState(() {
@@ -499,6 +410,6 @@ class _AddPostState extends State<AddPost> {
         _selectedImage = File(pickedFile.path);
       }
     });
-    Navigator.pop(context); // Close bottom sheet after selecting image
+    Navigator.pop(context);
   }
 }

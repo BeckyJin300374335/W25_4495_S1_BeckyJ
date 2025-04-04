@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-
-
 class ArticleDetailsPage extends StatelessWidget {
   final String title;
   final String content;
+  final String image;
 
   const ArticleDetailsPage({
     Key? key,
     required this.title,
     required this.content,
+    required this.image,
   }) : super(key: key);
 
   @override
@@ -28,13 +28,24 @@ class ArticleDetailsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Text(
-            content,
-            style: TextStyle(fontSize: 16, height: 1.5),
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(
+              image,
+              width: double.infinity,
+              height: 220,
+              fit: BoxFit.cover,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                content,
+                style: TextStyle(fontSize: 16, height: 1.5),
+              ),
+            ),
+          ],
         ),
       ),
     );

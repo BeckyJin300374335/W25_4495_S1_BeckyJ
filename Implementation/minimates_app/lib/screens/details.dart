@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/data/firestore.dart';
 import '../data/data.dart';
+import '../utils/constants/colors.dart';
 import 'author_details.dart';
 
 class DetailsPage extends StatefulWidget {
@@ -228,6 +229,52 @@ class _DetailsPageState extends State<DetailsPage> {
               ),
             ),
 
+            // ✅ Additional Info Section
+            if (post != null) ...[
+              SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (post!.startTime != null)
+                      Text(
+                        '🕒 Start Time: ${_formatTimestamp(post!.startTime)}',
+                        style: TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                    if (post!.endTime != null)
+                      Text(
+                        '🕓 End Time: ${_formatTimestamp(post!.endTime)}',
+                        style: TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                    if (post!.address != null && post!.address!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0),
+                        child: Text(
+                          '📍 Address:\n${post!.address!}',
+                          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
+                        ),
+                      ),
+                    if (post!.tags.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Wrap(
+                          spacing: 8,
+                          children: post!.tags
+                              .map((tag) => Chip(
+                            label: Text(tag),
+                            backgroundColor: Color(0xfffad0c4),
+                          ))
+                              .toList(),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+
+
+
             SizedBox(height: 20),
 
             // ✅ Buttons Section
@@ -257,7 +304,7 @@ class _DetailsPageState extends State<DetailsPage> {
                         ),
                         SizedBox(width: 6),
                         Text(
-                          "Collect",
+                          "Like",
                           style: TextStyle(fontSize: 14),
                         ),
                       ],

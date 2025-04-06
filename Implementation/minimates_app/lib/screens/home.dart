@@ -1,5 +1,6 @@
-import 'dart:developer' as developer;
+// ✅ Modified home.dart with Gemini "May Like" + Recommended Badge
 
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -8,7 +9,7 @@ import 'package:untitled1/screens/details.dart';
 import 'package:untitled1/screens/add_post.dart';
 import 'package:untitled1/screens/profile.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-
+import '../data/data.dart';
 import '../model/article.dart';
 import '../utils/constants/colors.dart';
 import 'article_detail.dart';
@@ -41,15 +42,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadUserProfile();
-    callGeminiModel().then((value) {
-      print(value.text);
-      print("##################################");
-    });
   }
 
-  Future<List<Article>>  _loadArticles() async {
-    final articles = await article.loadArticlesFromFirestore();
-    return articles;
+  Future<List<Article>> _loadArticles() async {
+    return await article.loadArticlesFromFirestore();
   }
 
   Future<void> _loadUserProfile() async {
@@ -61,8 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _gender = userData['gender'] ?? '';
         _city = userData['city'] ?? '';
         _email = userData['email'] ?? '';
-        _profilePictureUrl =
-            userData['profilePicture']; // Load profile picture URL
+        _profilePictureUrl = userData['profilePicture'];
       });
     }
   }
@@ -70,9 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFCF5F3),
+      backgroundColor: const Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: Color(0xFFFCF5F3),
+        backgroundColor: const Color(0xFFFCF5F3),
         centerTitle: true,
         title: Image.asset(
           'assets/logos/MiniMates_color.png',
@@ -87,57 +82,36 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Profile Section
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     child: Row(
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => ProfileScreen()),
-                            );
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProfileScreen()));
                           },
                           child: CircleAvatar(
                             radius: 30,
                             backgroundImage: _profilePictureUrl != null
                                 ? NetworkImage(_profilePictureUrl!)
-                                : AssetImage('assets/images/profile.jpg')
-                                    as ImageProvider,
+                                : const AssetImage('assets/images/profile.jpg') as ImageProvider,
                           ),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'How are you',
-                              style:
-                                  TextStyle(fontSize: 14, color: Colors.grey),
-                            ),
-                            Text(
-                              _username ?? "",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
+                            const Text('How are you', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                            Text(_username ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                           ],
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xFFFC5C65),
-                          ),
+                          decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFFC5C65)),
                           child: IconButton(
-                            icon: Icon(Icons.add, color: Colors.white),
+                            icon: const Icon(Icons.add, color: Colors.white),
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddPost(showBackArrow: true),
-                                ),
-                              );
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddPost(showBackArrow: true)));
                             },
                           ),
                         )
@@ -145,9 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Filter Tags
 
-                  // Popular Articles
+
                   SizedBox(
                     height: 230,
                     child: FutureBuilder<List<Article>>(
@@ -210,20 +183,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ClipRRect(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(10)),
-                                      child: Image.network(
-                                        article.image,
-                                        height: 120,
-                                        width: double.infinity,
-                                        fit: BoxFit.cover,
-                                      )
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(10)),
+                                        child: Image.network(
+                                          article.image,
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        )
                                     ),
                                     Padding(
                                       padding: EdgeInsets.all(8),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             title,
@@ -233,13 +206,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           Text(
                                             content != null &&
-                                                    content.length > 30
+                                                content.length > 30
                                                 ? '${content.substring(0, 30)}...'
                                                 : content ?? '',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style:
-                                                TextStyle(color: Colors.grey),
+                                            TextStyle(color: Colors.grey),
                                           ),
                                           SizedBox(height: 5),
                                         ],
@@ -255,82 +228,88 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
+
+
+                  // ✅ "May Like" + Tags Row
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     height: 40,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: FutureBuilder(
-                        future: Firestore().tagList(),
-                        builder: (context, snapshot) {
-                          final tagList = snapshot.data;
-                          if (tagList != null) {
-                            return ListView(
-                              scrollDirection: Axis.horizontal,
-                              children: tagList
-                                  .map((tag) => GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            selectedFilters.contains(tag.name)
-                                                ? selectedFilters
-                                                    .remove(tag.name)
-                                                : selectedFilters.add(tag.name);
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 15, vertical: 8),
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                            color: selectedFilters
-                                                    .contains(tag.name)
-                                                ? TColors.accent
-                                                : Colors.grey[300],
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                          child: Text(
-                                            tag.name,
-                                            style: TextStyle(
-                                              color: selectedFilters
-                                                      .contains(tag.name)
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                            ),
-                                          ),
+                      future: Firestore().tagList(),
+                      builder: (context, snapshot) {
+                        final tagList = snapshot.data;
+                        if (tagList != null) {
+                          return Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: callGeminiModel,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFFC5C65),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                ),
+                                child: const Text("May Like", style: TextStyle(color: Colors.white)),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: tagList.map((tag) {
+                                    final isSelected = selectedFilters.contains(tag.name);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          isSelected ? selectedFilters.remove(tag.name) : selectedFilters.add(tag.name);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                                        decoration: BoxDecoration(
+                                          color: isSelected ? TColors.accent : Colors.grey[300],
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
-                                      ))
-                                  .toList(),
-                            );
-                          } else {
-                            return CircularProgressIndicator();
-                          }
-                        }),
+                                        child: Text(tag.name, style: TextStyle(color: isSelected ? Colors.white : Colors.black)),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                      },
+                    ),
                   ),
 
-                  // Posts Section
+                  // ✅ Posts Section with Gemini Recommendations
                   StreamBuilder<QuerySnapshot>(
                     stream: Firestore().postsStream(),
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(child: CircularProgressIndicator());
+                      if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+
+                      final allPosts = Firestore().getPosts(snapshot, selectedFilters.toList());
+
+                      List<Post> displayPosts;
+                      if (showRecommendations && recommendedPostIds.isNotEmpty) {
+                        final recommended = allPosts.where((post) => recommendedPostIds.contains(post.id)).toList();
+                        final others = allPosts.where((post) => !recommendedPostIds.contains(post.id)).toList();
+                        displayPosts = [...recommended, ...others];
+                      } else {
+                        displayPosts = allPosts;
                       }
-                      final postList = Firestore()
-                          .getPosts(snapshot, selectedFilters.toList());
 
                       return ListView.builder(
-                        shrinkWrap:
-                            true, // Ensures ListView takes only needed space
-                        physics:
-                            ClampingScrollPhysics(), // Allows vertical scrolling
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        itemCount: postList.length,
+                        shrinkWrap: true,
+                        physics: const ClampingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        itemCount: displayPosts.length,
                         itemBuilder: (context, index) {
-                          var post = postList[index];
-                          var userID = post.userId;
-                          // AppUser user = await _firestore.getUserById(userID);
-
+                          final post = displayPosts[index];
+                          final isRecommended = recommendedPostIds.contains(post.id);
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -346,115 +325,79 @@ class _HomeScreenState extends State<HomeScreen> {
                               );
                             },
                             child: Container(
-                              margin: EdgeInsets.only(bottom: 16),
+                              margin: const EdgeInsets.only(bottom: 16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                  ),
-                                ],
+                                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 2, blurRadius: 5)],
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(15)),
-                                    child: Image.network(
-                                      post.image,
-                                      width: double.infinity,
-                                      height: 200,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                                        child: Image.network(
+                                          post.image,
+                                          width: double.infinity,
+                                          height: 200,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      if (isRecommended)
+                                        Positioned(
+                                          top: 10,
+                                          left: 10,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFFC5C65),
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            child: const Text("✨ Recommended", style: TextStyle(color: Colors.white, fontSize: 12)),
+                                          ),
+                                        )
+                                    ],
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.all(12),
+                                    padding: const EdgeInsets.all(12),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          post.title,
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        SizedBox(height: 8),
-                                        SizedBox(height: 10),
+                                        Text(post.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        const SizedBox(height: 8),
                                         Row(
                                           children: [
                                             FutureBuilder(
-                                                future: Firestore()
-                                                    .getUserById(userID),
-                                                builder: (context, snapshot) {
-                                                  final author = snapshot.data;
-                                                  if (author != null &&
-                                                      author.profilePicture !=
-                                                          null && author.userName != null) {
-                                                    return Row(
-                                                      children: [
-                                                        CircleAvatar(
-                                                            radius: 15,
-                                                            backgroundImage: author.profilePicture != null
-                                                                ? NetworkImage(author.profilePicture!)
-                                                                : AssetImage('assets/images/profile.jpg')
-                                                            as ImageProvider,
-                                                        ),
-                                                        SizedBox(width: 8),
-                                                        Text('${author.userName}')
-                                                      ],
-                                                    );
-                                                  } else {
-                                                    return CircularProgressIndicator();
-                                                  }
-                                                  
-                                                  
-                                                }),
-                                            
-
-
-                                            // FutureBuilder(
-                                            //     future: Firestore()
-                                            //         .getUserById(post.userId),
-                                            //     builder: (context, snapshot) {
-                                            //       return Text(
-                                            //         snapshot!.data!.name,
-                                            //         style: TextStyle(
-                                            //             fontWeight:
-                                            //                 FontWeight.bold),
-                                            //       );
-                                            //     }),
-                                            Spacer(),
-                                            GestureDetector(
-                                              onTap: () {},
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 15,
-                                                    vertical: 6),
-                                                child: Row(
-                                                  children: [
-                                                    // Icon(Icons.arrow_forward, color: TColors.secondary),
-                                                    SizedBox(width: 6),
-                                                    Text(
-                                                      "More>>",
-                                                      style: TextStyle(
-                                                          color: TColors.accent,
-                                                          fontWeight:
-                                                              FontWeight.w400),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                              future: Firestore().getUserById(post.userId),
+                                              builder: (context, snapshot) {
+                                                final author = snapshot.data;
+                                                if (author != null) {
+                                                  return Row(
+                                                    children: [
+                                                      CircleAvatar(
+                                                        radius: 15,
+                                                        backgroundImage: author.profilePicture != null
+                                                            ? NetworkImage(author.profilePicture!)
+                                                            : const AssetImage('assets/images/profile.jpg') as ImageProvider,
+                                                      ),
+                                                      const SizedBox(width: 8),
+                                                      Text(author.userName)
+                                                    ],
+                                                  );
+                                                } else {
+                                                  return const SizedBox.shrink();
+                                                }
+                                              },
                                             ),
+                                            const Spacer(),
+                                            Text("More>>", style: TextStyle(color: TColors.accent)),
                                           ],
                                         )
                                       ],
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
@@ -472,15 +415,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  callGeminiModel() async {
-    final model = GenerativeModel(model: 'gemini-2.5-pro-exp-03-25', apiKey: 'AIzaSyBwmZTKKRECKZwT3SjyEzDsZF7Uk2yq_T0');
+  Future<void> callGeminiModel() async {
+    final model = GenerativeModel(
+      model: 'gemini-2.5-pro-exp-03-25',
+      apiKey: 'AIzaSyBwmZTKKRECKZwT3SjyEzDsZF7Uk2yq_T0',
+    );
     final postList = await Firestore().postList();
     final user = await Firestore().getMySelf();
     final postListJson = postList.map((post) => post.toMap()).toList();
     final preferenceJson = user.preferences;
-    final prompt = "I have a list of posts in JSON format: ${postListJson} and my preference tags are ${preferenceJson}. Please recommend the posts that I like and output their ID in a list only";
-    print(prompt);
+    final prompt =
+        "I have a list of posts in JSON format: $postListJson and my preference tags are $preferenceJson. Please recommend the posts that I like and output their ID in a list only";
+
     final response = await model.generateContent([Content.text(prompt)]);
-    return response;
+    final text = response.text ?? "";
+    final ids = RegExp(r'\w{20,}').allMatches(text).map((match) => match.group(0)!).toList();
+
+    setState(() {
+      recommendedPostIds = ids;
+      showRecommendations = true;
+    });
+
+    print("🔮 Recommended Post IDs: $recommendedPostIds");
   }
 }

@@ -260,14 +260,22 @@ class _DetailsPageState extends State<DetailsPage> {
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Wrap(
                           spacing: 8,
-                          children: post!.tags
-                              .map((tag) => Chip(
-                            label: Text(tag),
-                            backgroundColor: Color(0xfffad0c4),
-                          ))
-                              .toList(),
+                          children: post!.tags.map((tag) {
+                            return Chip(
+                              label: Text(
+                                tag,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Color(0xFFFC5C65),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30), // ✅ bigger radius
+                                side: BorderSide.none, // ✅ no border
+                              ),
+                            );
+                          }).toList(),
                         ),
-                      ),
+                      )
+
                   ],
                 ),
               ),

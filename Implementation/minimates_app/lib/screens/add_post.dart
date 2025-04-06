@@ -181,48 +181,66 @@ class _AddPostState extends State<AddPost> {
                 child: _imageUploadWidget(),
               ),
               const SizedBox(height: 10),
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 5),
-                height: 40,
-                padding: EdgeInsets.symmetric(horizontal: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 child: FutureBuilder(
-                    future: Firestore().tagList(),
-                    builder: (context, snapshot) {
-                      final tagList = snapshot.data;
-                      if (tagList != null) {
-                        return ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: tagList.map((tag) => GestureDetector(
+                  future: Firestore().tagList(),
+                  builder: (context, snapshot) {
+                    final tagList = snapshot.data;
+                    if (tagList != null) {
+                      return Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: tagList.map((tag) {
+                          final isSelected = selectedFilters.contains(tag.name);
+                          return GestureDetector(
                             onTap: () {
                               setState(() {
-                                selectedFilters.contains(tag.name)
+                                isSelected
                                     ? selectedFilters.remove(tag.name)
                                     : selectedFilters.add(tag.name);
                               });
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: selectedFilters.contains(tag.name)
-                                    ? TColors.secondary
-                                    : Colors.grey[300],
-                                borderRadius: BorderRadius.circular(20),
+                                color: isSelected ? TColors.primary : Colors.white,
+                                borderRadius: BorderRadius.circular(30), // pill shape
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                tag.name,
-                                style: TextStyle(
-                                  color: selectedFilters.contains(tag.name) ? Colors.white : Colors.black,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    tag.name,
+                                    style: TextStyle(
+                                      color: isSelected ? Colors.white : Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.add,
+                                      size: 16,
+                                      color: isSelected ? Colors.white : Colors.black54),
+                                ],
                               ),
                             ),
-                          )).toList(),
-                        );
-                      } else {
-                        return CircularProgressIndicator();
-                      }
-                    }),
+                          );
+                        }).toList(),
+                      );
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
               ),
+
               const SizedBox(height: 10),
               SizedBox(
                 child: ElevatedButton(
@@ -248,7 +266,7 @@ class _AddPostState extends State<AddPost> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: TColors.primary,
+                    backgroundColor: Color(0xFFFC5C65),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 3),
                   ),
@@ -306,7 +324,7 @@ class _AddPostState extends State<AddPost> {
             child: Container(
               padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: TColors.primary,
+                color: Color(0xFFFC5C65),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.camera_alt, color: Colors.white, size: 30),
@@ -328,7 +346,7 @@ class _AddPostState extends State<AddPost> {
                 _showCancelDialog();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFFC5C65),
+                backgroundColor: TColors.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
               child: Text("Cancel", style: TextStyle(color: Colors.white)),

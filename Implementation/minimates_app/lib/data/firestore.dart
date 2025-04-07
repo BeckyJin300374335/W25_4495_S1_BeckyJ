@@ -44,6 +44,38 @@ class Firestore {
     return snapshot.docs.map<Post>((doc) => Post.fromFirestore(doc)).toList();
   }
 
+  Future<void> unjoinEvent(String postId) async {
+    String userId = _auth.currentUser!.uid;
+    final snapshot = await _firestore
+        .collection('users_posts')
+        .where('user_id', isEqualTo: userId)
+        .where('post_id', isEqualTo: postId)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
+  Future<int> getJoinedCount(String postId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users_posts')
+        .where('post_id', isEqualTo: postId)        // ✅ MATCHES your Firestore
+        .where('is_going', isEqualTo: true)
+        .get();
+
+    return snapshot.docs.length;
+  }
+
+  Stream<int> joinedCountStream(String postId) {
+    return _firestore
+        .collection('users_posts')
+        .where('post_id', isEqualTo: postId)
+        .where('is_going', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+
+
   Future<void> savePreferences(List<String> selectedPreferences) async {
     try {
       await _firestore.collection("users").doc(_auth.currentUser!.uid).update({

@@ -272,10 +272,11 @@ class _MyEventsPageState extends State<MyEventsPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _eventButton("Cancel", Color(0xFFFC5C65), () => _showCancelDialog(), post),
-                    _eventButton("detail", TColors.accent, () {}, post),
+                    _eventButton("Cancel", Color(0xFFFC5C65), post),
+                    _eventButton("detail", TColors.accent, post),
                   ],
                 ),
+
               ],
             ),
           ),
@@ -284,20 +285,35 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-  Widget _eventButton(String title, Color color, VoidCallback onPressed, Post post) {
+  Widget _eventButton(String title, Color color, Post post) {
     return ElevatedButton(
       onPressed: () async {
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => DetailsPage(
-              title: post.title,
-              image: post.image,
-              postID: post.id,
-              userID: post.userId,
+        if (title == "Cancel") {
+          _showCancelDialog(() async {
+            Navigator.pop(context); // Close the dialog
+
+            if (_selectedFilter == 0 || _selectedFilter == 1) {
+              await Firestore().unjoinEvent(post.id);
+            } else if (_selectedFilter == 2) {
+              await Firestore().uncollectPost(post.id);
+            }
+
+            setState(() {}); // Refresh UI
+          });
+        } else {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => DetailsPage(
+                title: post.title,
+                image: post.image,
+                postID: post.id,
+                userID: post.userId,
+              ),
             ),
-          ),
-        );
-        setState(() {});
+          );
+          setState(() {}); // ✅ refreshes MyEventsPage
+// Refresh after navigating back
+        }
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -307,7 +323,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-  void _showCancelDialog() {
+
+  void _showCancelDialog(VoidCallback onConfirm) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -336,14 +353,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: Text("No", style: TextStyle(color: TColors.accent)),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              // Handle cancellation logic here
-            },
+            onPressed: onConfirm,
             child: Text("Yes", style: TextStyle(color: TColors.accent)),
           ),
         ],
       ),
     );
   }
+
 }

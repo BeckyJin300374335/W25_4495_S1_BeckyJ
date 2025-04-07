@@ -62,29 +62,58 @@ class _DetailsPageState extends State<DetailsPage> {
     return '${timestamp.year}-${timestamp.month.toString().padLeft(2, '0')}-${timestamp.day.toString().padLeft(2, '0')} at ${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   Firestore().getUserPostRelation(widget.postID).then((value) {
+  //     if (value != null && value.is_going) {
+  //       setState(() {
+  //         isGoing = true;
+  //       });
+  //     }
+  //   });
+  //
+  //   Firestore().isPostCollected(widget.postID).then((value) {
+  //     setState(() {
+  //       isCollected = value;
+  //     });
+  //   });
+  //
+  //   Firestore().getPostByID(widget.postID).then((value) {
+  //     setState(() {
+  //       post = value;
+  //     });
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
-
-    Firestore().getUserPostRelation(widget.postID).then((value) {
-      if (value != null && value.is_going) {
-        setState(() {
-          isGoing = true;
-        });
-      }
-    });
-
-    Firestore().isPostCollected(widget.postID).then((value) {
-      setState(() {
-        isCollected = value;
-      });
-    });
 
     Firestore().getPostByID(widget.postID).then((value) {
       setState(() {
         post = value;
       });
     });
+  }
+
+  void _refreshJoinAndLikeStatus() async {
+    final relation = await Firestore().getUserPostRelation(widget.postID);
+    final isGoingNow = relation != null && relation.is_going;
+
+    final isCollectedNow = await Firestore().isPostCollected(widget.postID);
+
+    setState(() {
+      isGoing = isGoingNow;
+      isCollected = isCollectedNow;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshJoinAndLikeStatus();
   }
 
   @override

@@ -346,7 +346,7 @@ class _AddPostState extends State<AddPost> {
                 _showCancelDialog();
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: TColors.primary,
+                backgroundColor: Color(0xFFFC5C65),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
               ),
               child: Text("Cancel", style: TextStyle(color: Colors.white)),
@@ -404,7 +404,7 @@ class _AddPostState extends State<AddPost> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel", style: TextStyle(color: TColors.secondary, fontSize: 16)),
+            child: Text("Cancel", style: TextStyle(color: Color(0xFFFC5C65), fontSize: 16)),
           ),
         ],
       ),

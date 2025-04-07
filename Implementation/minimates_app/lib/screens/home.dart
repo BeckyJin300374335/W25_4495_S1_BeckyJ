@@ -163,6 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 );
+                                setState(() {});
                               },
                               child: Container(
                                 width: 250,
@@ -357,7 +358,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                             child: const Text("✨ Recommended", style: TextStyle(color: Colors.white, fontSize: 12)),
                                           ),
-                                        )
+                                        ),
+                                      // 🔥 People Joined count overlay
+                                      Positioned(
+                                        bottom: 10,
+                                        left: 10,
+                                        child: StreamBuilder<int>(
+                                          stream: Firestore().joinedCountStream(post.id),
+                                          builder: (context, snapshot) {
+                                            if (!snapshot.hasData) return const SizedBox.shrink();
+                                            final count = snapshot.data!;
+                                            return Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(0.6),
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: Text(
+                                                "$count people joined!",
+                                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                              ),
+                                            );
+                                          },
+                                        ),
+
+                                      ),
                                     ],
                                   ),
                                   Padding(

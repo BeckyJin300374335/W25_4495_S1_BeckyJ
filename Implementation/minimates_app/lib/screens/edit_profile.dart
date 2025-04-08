@@ -25,7 +25,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   List<String> _genderOptions = ['Male', 'Female', 'Other'];
 
   List<String> _bcCities = [
-    'Abbotsford', 'Burnaby', 'Campbell River', 'Chilliwack', 'Coquitlam',
+    'Abbotsford', 'Burnaby', 'Campbell River', 'Chilliwack', 'Coquitlam','Surrey',
     'Courtenay', 'Cranbrook', 'Delta', 'Duncan', 'Fort St. John',
     'Kamloops', 'Kelowna', 'Langford', 'Langley', 'Maple Ridge',
     'Nanaimo', 'New Westminster', 'North Vancouver', 'Penticton', 'Port Coquitlam',
@@ -56,16 +56,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _loadUserProfile() async {
     final userData = await _firestore.getUserProfile();
+    print("🔥 Loaded user data: $userData");
     if (userData != null) {
       setState(() {
         _usernameController.text = userData['userName'] ?? '';
-        _ageController.text = userData['age'] ?? '';
+        _ageController.text = userData['age']?.toString() ?? '';
         _emailController.text = userData['email'] ?? '';
         _selectedGender = userData['gender'] ?? 'Female';
         _selectedCity = userData['city'] ?? 'Vancouver';
       });
+    } else {
+      print("⚠️ getUserProfile returned null");
     }
   }
+
 
   Future<void> _saveProfile() async {
     String? profilePictureUrl;
@@ -105,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: TColors.secondary,
+        backgroundColor: TColors.primary,
         centerTitle: true,
         title: Text(
           'Edit Profile',
@@ -138,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   // }// Close the screen after saving
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: TColors.secondary,
+                  backgroundColor: TColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -198,7 +202,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             backgroundColor: Colors.grey[300],
             backgroundImage: _selectedImage != null
                 ? FileImage(_selectedImage!) as ImageProvider
-                : AssetImage('assets/images/upload_image.png'),
+                : AssetImage('assets/images/upload_image_red.png'),
           ),
           Positioned(
             bottom: 0,
@@ -210,7 +214,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: TColors.secondary, // Matching theme color
+                  color: TColors.primary, // Matching theme color
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

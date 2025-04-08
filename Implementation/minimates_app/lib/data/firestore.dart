@@ -66,6 +66,35 @@ class Firestore {
 
 
   }
+
+  Future<void> addComment(String postId, String content, bool isAuthor) async {
+    final user = FirebaseAuth.instance.currentUser!;
+    final userData = await getUserById(user.uid);
+
+    await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .add({
+      'user_id': user.uid,
+      'user_name': userData.userName,
+      'user_photo': userData.profilePicture,
+      'content': content,
+      'timestamp': FieldValue.serverTimestamp(),
+      'is_author': isAuthor,
+    });
+  }
+
+  Stream<QuerySnapshot> getComments(String postId) {
+    return FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
+  }
+
+
   Future<int> getJoinedCount(String postId) async {
     final snapshot = await FirebaseFirestore.instance
         .collection('users_posts')

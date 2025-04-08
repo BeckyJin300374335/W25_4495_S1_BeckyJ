@@ -50,7 +50,8 @@ class MyApp extends StatelessWidget {
       // ),
       // home: OnBoardingScreen(),
       // navigatorKey: Get.key,
-      home:BottomNavBar()
+      // home:BottomNavBar(),
+        home:Main_Page()
     );
   }
 }

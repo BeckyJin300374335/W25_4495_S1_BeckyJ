@@ -12,16 +12,16 @@ app = firebase_admin.initialize_app(cred, {'storageBucket': 'flutterapp-738bb.fi
 db = firestore.client()
 
 users = [
-    ('Becky bb', 'becky@gmail.com', '123456', 39, 'Female', 'Vernon', 'images/profile/profile1.jpg'),
-    ('Leo Parker', 'leo@gmail.com', '123456', 28, 'Male', 'Burnaby', 'images/profile/profile2.jpg'),
-    ('Marcus Riley', 'marcus@gmail.com', '123456', 35, 'Male', 'Kelowna', 'images/profile/profile3.jpg'),
-    ('Sophia Kim', 'sophia@gmail.com', '123456', 27, 'Female', 'Vancouver', 'images/profile/profile4.png'),
-    ('Olivia Smith', 'olivia@gmail.com', '123456', 33, 'Female', 'Richmond', 'images/profile/profile5.jpg'),
-    ('Ethan Brown', 'ethan@gmail.com', '123456', 30, 'Male', 'Langley', 'images/profile/profile6.jpeg'),
-    ('Liam Johnson', 'liam@gmail.com', '123456', 31, 'Male', 'Coquitlam', 'images/profile/profile7.jpeg'),
-    ('Noah Williams', 'noah@gmail.com', '123456', 29, 'Male', 'Victoria', 'images/profile/profile8.jpg'),
-    ('Ava Miller', 'ava@gmail.com', '123456', 26, 'Female', 'Surrey', 'images/profile/profile9.jpg'),
-    ('Emma Davis', 'emma@gmail.com', '123456', 34, 'Female', 'Whistler', 'images/profile/profile10.jpg'),
+    ('Becky bb', 'becky@gmail.com', '123456', 9, 'Female', 'Vernon', 'images/profile/profile1.jpg'),
+    ('Leo Parker', 'leo@gmail.com', '123456', 8, 'Male', 'Burnaby', 'images/profile/profile2.jpg'),
+    ('Marcus Riley', 'marcus@gmail.com', '123456', 5, 'Male', 'Kelowna', 'images/profile/profile3.jpg'),
+    ('Sophia Kim', 'sophia@gmail.com', '123456', 7, 'Female', 'Vancouver', 'images/profile/profile4.png'),
+    ('Olivia Smith', 'olivia@gmail.com', '123456', 3, 'Female', 'Richmond', 'images/profile/profile5.jpg'),
+    ('Ethan Brown', 'ethan@gmail.com', '123456', 6, 'Male', 'Langley', 'images/profile/profile6.jpeg'),
+    ('Liam Johnson', 'liam@gmail.com', '123456', 1, 'Male', 'Coquitlam', 'images/profile/profile7.jpeg'),
+    ('Noah Williams', 'noah@gmail.com', '123456', 2, 'Male', 'Victoria', 'images/profile/profile8.jpg'),
+    ('Ava Miller', 'ava@gmail.com', '123456', 6, 'Female', 'Surrey', 'images/profile/profile9.jpg'),
+    ('Emma Davis', 'emma@gmail.com', '123456', 4, 'Female', 'Whistler', 'images/profile/profile10.jpg'),
 ]
 
 posts = [
@@ -480,14 +480,14 @@ def reset_articles():
         })
 
 def initiallize_database_with_fake_data():
-    # delete_authentications()
-    # delete_collection(db.collection('tags'), BATCH_SIZE)
-    # delete_collection(db.collection('users'), BATCH_SIZE)
-    # delete_collection(db.collection('posts'), BATCH_SIZE)
-    # upload_images()
-    # initialize_tags()
-    # create_users_and_posts()
-    reset_articles()
+    delete_authentications()
+    delete_collection(db.collection('tags'), BATCH_SIZE)
+    delete_collection(db.collection('users'), BATCH_SIZE)
+    delete_collection(db.collection('posts'), BATCH_SIZE)
+    upload_images()
+    initialize_tags()
+    create_users_and_posts()
+    # reset_articles()
 
 
 if __name__ == '__main__':

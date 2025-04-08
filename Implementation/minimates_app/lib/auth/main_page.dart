@@ -8,6 +8,8 @@ import 'package:untitled1/screens/login.dart';
 import 'package:untitled1/screens/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../screens/bottom_nav_bar.dart';
+
 class Main_Page extends StatelessWidget {
   const Main_Page({super.key});
 
@@ -18,8 +20,10 @@ class Main_Page extends StatelessWidget {
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
               if (FirebaseAuth.instance.currentUser != null) {
-                return HomeScreen();
+                return new BottomNavBar();
+                // return HomeScreen();
               } else {
+                // return new BottomNavBar();
                 return OnBoardingScreen();
               }
             }));

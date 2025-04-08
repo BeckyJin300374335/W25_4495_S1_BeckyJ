@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled1/screens/edit_profile.dart';
 import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/screens/policy_page.dart';
 import 'package:untitled1/screens/preference.dart';
 import '../auth/auth_page.dart';
+import '../auth/main_page.dart';
 import '../data/firestore.dart';
 import '../utils/constants/colors.dart';
 import 'contact_page.dart';
@@ -32,25 +34,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _loadUserProfile();
   }
-
   Future<void> _loadUserProfile() async {
+    // // ✅ Wait a short moment to ensure FirebaseAuth is fully settled
+    // await Future.delayed(Duration(milliseconds: 300));
+
     final userData = await _firestore.getUserProfile();
     if (userData != null) {
       setState(() {
         _username = userData['userName'] ?? 'Unnamed';
-        _age = userData['age'] ?? 0;
+        _age = userData['age'] ?? 0; // or cast safely
         _gender = userData['gender'] ?? 'Unknown';
         _city = userData['city'] ?? 'Unknown';
         _email = userData['email'] ?? 'No email';
         _profilePictureUrl = userData['profilePicture'];
       });
+    } else {
+      print("⚠️ No profile data found");
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _loadUserProfile(); // ✅ Refresh profile every time it comes into view
   }
 
 
@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ProfileRow(title: 'Age', value: _age.toString()),
+                  ProfileRow(title: 'Age', value: _age != null ? _age.toString() : 'Unknown'),
                   ProfileRow(title: 'Gender', value: _gender),
                   ProfileRow(title: 'City', value: _city),
                   ProfileRow(title: 'Email', value: _email),
@@ -157,7 +157,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const PreferenceSelectionPage()),
-                        );
+                        ).then((_) {
+                           // Refresh when returning from preference screen
+                        });
                       },
                     ),
                   ),

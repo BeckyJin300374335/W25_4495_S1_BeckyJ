@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled1/auth/main_page.dart';
 import 'package:untitled1/data/auth_data.dart';
 import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
@@ -93,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: () {
           AuthenticationRemote().login(email.text, password.text);
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => BottomNavBar(),
+            builder: (BuildContext context) => Main_Page(),
           ));
         },
         child: Container(

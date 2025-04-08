@@ -136,9 +136,10 @@ class _AddPostState extends State<AddPost> {
           },
         )
             : null,
-        title: const Text(
-          'Create Post',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+        title: Image.asset(
+          'assets/logos/MiniMates_color.png',
+          height: 30,
+          fit: BoxFit.contain,
         ),
         centerTitle: true,
       ),

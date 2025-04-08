@@ -7,6 +7,8 @@ import '../data/auth_data.dart';
 import '../data/data.dart';
 import '../utils/constants/colors.dart';
 import 'details.dart'; // Import your theme colors
+import 'package:intl/intl.dart';
+
 
 class MyEventsPage extends StatefulWidget {
   @override
@@ -249,7 +251,13 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(post.startTime.toString(), style: TextStyle(color: Colors.white)),
+                Text(
+                  post.startTime != null
+                      ? DateFormat('yyyy-MM-dd HH:mm').format(post.startTime!)
+                      : 'No start time',
+                  style: TextStyle(color: Colors.white),
+                ),
+
               ],
             ),
           ),

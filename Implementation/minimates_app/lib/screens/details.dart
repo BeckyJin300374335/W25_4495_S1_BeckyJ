@@ -1,14 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled1/data/firestore.dart';
 import '../data/data.dart';
 import '../utils/constants/colors.dart';
 import 'author_details.dart';
+import 'package:intl/intl.dart';
+
 
 class DetailsPage extends StatefulWidget {
   final String title;
   final String image;
   final String postID;
   final String userID;
+
+
 
   const DetailsPage({
     super.key,
@@ -26,6 +32,9 @@ class _DetailsPageState extends State<DetailsPage> {
   bool isCollected = false;
   bool isGoing = false;
   Post? post;
+
+  TextEditingController _commentController = TextEditingController();
+
 
   void _confirmGoing() {
     if (isGoing) return;
@@ -379,6 +388,94 @@ class _DetailsPageState extends State<DetailsPage> {
                 ],
               ),
             ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _commentController,
+                        decoration: InputDecoration(
+                          hintText: 'Say something...',
+                          prefixIcon: Icon(Icons.emoji_emotions_outlined),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.send),
+                            onPressed: () async {
+                              final content = _commentController.text.trim();
+                              if (content.isNotEmpty) {
+                                final isAuthor = FirebaseAuth.instance.currentUser!.uid == widget.userID;
+                                await Firestore().addComment(widget.postID, content, isAuthor);
+                                _commentController.clear();
+                              }
+                            },
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            StreamBuilder<QuerySnapshot>(
+              stream: Firestore().getComments(widget.postID),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return CircularProgressIndicator();
+
+                final comments = snapshot.data!.docs;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: comments.length,
+                  itemBuilder: (context, index) {
+                    final comment = comments[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: comment['user_photo'] != null
+                            ? NetworkImage(comment['user_photo'])
+                            : AssetImage('assets/images/profile.jpg') as ImageProvider,
+                      ),
+                      title: Row(
+                        children: [
+                          if (comment['is_author'] == true)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 6.0),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.red[100],
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text("Author", style: TextStyle(fontSize: 10)),
+                              ),
+                            ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(comment['content']),
+                          Text(
+                            comment['timestamp'] != null
+                                ? DateFormat('yyyy-MM-dd HH:mm').format((comment['timestamp'] as Timestamp).toDate())
+                                : 'Sending...',
+                            style: TextStyle(fontSize: 8, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+
+
 
             SizedBox(height: 20),
           ],

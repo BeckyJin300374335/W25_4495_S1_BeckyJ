@@ -38,11 +38,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ArticleList article = ArticleList();
 
+
   @override
   void initState() {
     super.initState();
     _loadUserProfile();
   }
+
+  bool _hasInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasInitialized) {
+      _hasInitialized = true;
+      Firestore().getUserPreferences().then((prefs) {
+        if (prefs.isNotEmpty) {
+          callGeminiModel(); // Refresh recommendations when returning
+        }
+      });
+    }
+  }
+
 
   Future<List<Article>> _loadArticles() async {
     return await article.loadArticlesFromFirestore();
@@ -59,6 +76,10 @@ class _HomeScreenState extends State<HomeScreen> {
         _email = userData['email'] ?? '';
         _profilePictureUrl = userData['profilePicture'];
       });
+
+      if (userData.containsKey('preferences') && userData['preferences'].isNotEmpty) {
+        callGeminiModel();
+      }
     }
   }
 
@@ -302,6 +323,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       } else {
                         displayPosts = allPosts;
                       }
+
+                      if (showRecommendations && recommendedPostIds.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(
+                            child: Text(
+                              "No recommended posts found. Try setting your preferences!",
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      }
+
 
                       return ListView.builder(
                         shrinkWrap: true,

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:untitled1/screens/edit_profile.dart';
 import 'package:untitled1/data/auth_data.dart';
+import 'package:untitled1/screens/policy_page.dart';
 import 'package:untitled1/screens/preference.dart';
 import '../auth/auth_page.dart';
 import '../data/firestore.dart';
 import '../utils/constants/colors.dart';
+import 'contact_page.dart';
+import 'my_posts.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -34,15 +37,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final userData = await _firestore.getUserProfile();
     if (userData != null) {
       setState(() {
-        _username = userData['userName'] ?? '';
-        _age = userData['age'] ?? '';
-        _gender = userData['gender'] ?? '';
-        _city = userData['city'] ?? '';
-        _email = userData['email'] ?? '';
-        _profilePictureUrl = userData['profilePicture']; // Load profile picture URL
+        _username = userData['userName'] ?? 'Unnamed';
+        _age = userData['age'] ?? 0;
+        _gender = userData['gender'] ?? 'Unknown';
+        _city = userData['city'] ?? 'Unknown';
+        _email = userData['email'] ?? 'No email';
+        _profilePictureUrl = userData['profilePicture'];
       });
     }
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadUserProfile(); // ✅ Refresh profile every time it comes into view
+  }
+
 
 
   @override
@@ -121,16 +131,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ProfileRow(title: 'Gender', value: _gender),
                   ProfileRow(title: 'City', value: _city),
                   ProfileRow(title: 'Email', value: _email),
-                  SizedBox(height: 10),
-                  ListTile(
-                    title: const Text('Preferences'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const PreferenceSelectionPage()),
-                      );
-                    },
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      title: const Text('Posts',style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MyPostsPage()),
+                        );                      },
+                    ),
+                  ),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      title: const Text('Preferences',style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PreferenceSelectionPage()),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      title: const Text('Policy',style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const PolicyPage()),
+                        );
+                      },
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                    ),
+                    child: ListTile(
+                      title: const Text('Contact',style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ContactPage()),
+                        );
+                      },
+                    ),
                   ),
                   ProfileRowWithTrailing(
                     title: 'Notifications',
@@ -144,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       activeColor: TColors.primary,
                     ),
                   ),
-                  SizedBox(height: 10),
+
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {

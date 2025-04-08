@@ -145,7 +145,7 @@ class _AuthorDetailsPageState extends State<AuthorDetailsPage> {
               SizedBox(height: 10),
 
               FutureBuilder<List<Post>>(
-                future: Firestore().myPostList(),
+                future: Firestore().getPostsByUser(widget.userID),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return Center(child: CircularProgressIndicator());

@@ -26,6 +26,14 @@ class Firestore {
     }
   }
 
+  Future<List<Post>> getPostsByUser(String userId) async {
+    final snapshot = await _firestore
+        .collection('posts')
+        .where('user_id', isEqualTo: userId)
+        .get();
+
+    return snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+  }
   Future<Post> getPostByID(String postID) async {
     final snapshot = await _firestore.collection('posts').doc(postID).get();
     return Post.fromFirestore(snapshot);
@@ -55,6 +63,8 @@ class Firestore {
     for (var doc in snapshot.docs) {
       await doc.reference.delete();
     }
+
+
   }
   Future<int> getJoinedCount(String postId) async {
     final snapshot = await FirebaseFirestore.instance

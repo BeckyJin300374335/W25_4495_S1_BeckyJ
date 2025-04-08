@@ -7,6 +7,9 @@ class Post {
   String description;
   List<String> tags;
   DateTime timestamp;
+  double? latitude;
+  double? longitude;
+
   String userId;
   DateTime? startTime;
   DateTime? endTime;
@@ -22,6 +25,8 @@ class Post {
     required this.userId,
     this.startTime,
     this.endTime,
+    required this.latitude,
+    required this.longitude,
     this.address,
   });
 
@@ -45,6 +50,8 @@ class Post {
           ? (data['end_time'] as Timestamp).toDate()
           : null,
       address: data['address'],
+      latitude: data['latitude'],
+      longitude: data['longitude'],
     );
   }
 
@@ -56,6 +63,8 @@ class Post {
       'start_time': startTime,
       'end_time': endTime,
       'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
     };
   }
 }

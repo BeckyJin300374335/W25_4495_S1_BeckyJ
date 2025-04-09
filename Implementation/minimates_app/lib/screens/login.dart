@@ -22,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -39,25 +41,22 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: SafeArea(
           child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 20,
-            ),
-            image(context),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              image(context),
+              textfield_email(email, _focusNode1, 'Email', Icons.email),
+              SizedBox(height: 20),
+              textfield_email(password, _focusNode2, 'Password', Icons.lock),
+              SizedBox(height: 20),
+              account(),
+              SizedBox(height: 20),
+              Login_bottom()
+            ],
+          ),
 
-            textfield_email(email, _focusNode1, 'Email', Icons.email),
-            SizedBox(
-              height: 20,
-            ),
-            textfield_email(password, _focusNode2, 'Password', Icons.password),
-            SizedBox(
-              height: 20,
-            ),
-            account(),
-            SizedBox(height: 20),
-            Login_bottom()
-          ],
         ),
       )),
     );
@@ -92,52 +91,43 @@ class _LoginScreenState extends State<LoginScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: GestureDetector(
         onTap: () {
-          AuthenticationRemote().login(email.text, password.text);
-          Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (BuildContext context) => Main_Page(),
-          ));
+          if (_formKey.currentState!.validate()) {
+            AuthenticationRemote().login(email.text, password.text);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => Main_Page()),
+            );
+          }
         },
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: TColors.secondary, borderRadius: BorderRadius.circular(10)),
+              color: TColors.primary, borderRadius: BorderRadius.circular(10)),
           child: Text(
             'Login',
-            style: TextStyle(
-                color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
           ),
         ),
       ),
     );
   }
 
-  Widget textfield_email(TextEditingController _controller,
-      FocusNode _focusNode, String typeName, IconData iconss) {
+  Widget textfield_email(TextEditingController _controller, FocusNode _focusNode, String hintText, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          style: TextStyle(fontSize: TSizes.fontSizeMd, color: Colors.black),
-          decoration: InputDecoration(
-              prefixIcon: Icon(
-                iconss,
-              ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              hintText: typeName,
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.grey, width: 2.0)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: TColors.secondary, width: 2.0))),
+      child: TextFormField(
+        controller: _controller,
+        focusNode: _focusNode,
+        validator: (value) {
+          if (value == null || value.isEmpty) return "$hintText is required";
+          if (hintText == 'Email' && !value.contains('@')) return "Enter a valid email";
+          return null;
+        },
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon),
+          hintText: hintText,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );

@@ -39,9 +39,12 @@ class _ChatsPageState extends State<ChatsPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFCF5F3),
       appBar: AppBar(
-        title: const Text("Chats"),
+        backgroundColor: const Color(0xFFFCF5F3),
         centerTitle: true,
-        backgroundColor: const Color(0xFFF9AFA6),
+        title: Image.asset(
+          'assets/logos/MiniMates_color.png',
+          height: 30,
+        ),
       ),
       body: StreamBuilder<List<ChatSummary>>(
         stream: _chatService.getUserChats(),
@@ -61,12 +64,15 @@ class _ChatsPageState extends State<ChatsPage> {
             itemBuilder: (context, index) {
               final chat = chats[index];
               final partnerId = chat.getOtherUserId(currentUserId);
+              if (partnerId == null) {
+                return SizedBox(); // 👈 skip rendering this chat if no other user
+              }
               final partnerName = chat.getOtherUserName(currentUserId);
 
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: Colors.grey[300],
-                  child: Text(partnerName[0]),
+                  backgroundColor: Colors.white,
+                  child: Text(partnerName[0],style: TextStyle(color: TColors.primary),),
                 ),
                 title: Text(partnerName),
                 subtitle: Text(chat.lastMessage),

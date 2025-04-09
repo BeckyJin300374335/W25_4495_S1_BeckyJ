@@ -26,8 +26,12 @@ class ChatSummary {
     );
   }
 
-  String getOtherUserId(String currentUserId) {
-    return participants.firstWhere((id) => id != currentUserId);
+  String? getOtherUserId(String currentUserId) {
+    try {
+      return participants.firstWhere((id) => id != currentUserId);
+    } catch (e) {
+      return null; // return null if no match is found
+    }
   }
 
   String getOtherUserName(String currentUserId) {

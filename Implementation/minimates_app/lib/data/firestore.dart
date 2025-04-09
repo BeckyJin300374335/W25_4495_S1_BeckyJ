@@ -80,8 +80,9 @@ class Firestore {
       'user_name': userData.userName,
       'user_photo': userData.profilePicture,
       'content': content,
-      'timestamp': FieldValue.serverTimestamp(),
+      'timestamp': Timestamp.now(),
       'is_author': isAuthor,
+      'likes': [],
     });
   }
 
@@ -93,6 +94,81 @@ class Firestore {
         .orderBy('timestamp', descending: true)
         .snapshots();
   }
+
+  Future<void> addReply({
+    required String postId,
+    required String commentId,
+    required String content,
+  }) async {
+    final user = FirebaseAuth.instance.currentUser!;
+    final userData = await getUserById(user.uid);
+
+    await _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .collection('replies')
+        .add({
+      'user_id': user.uid,
+      'user_name': userData.userName,
+      'user_photo': userData.profilePicture,
+      'content': content,
+      'timestamp': FieldValue.serverTimestamp(),
+      'likes': [],
+    });
+  }
+  Stream<QuerySnapshot> getReplies(String postId, String commentId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .collection('replies')
+        .orderBy('timestamp', descending: false)
+        .snapshots();
+  }
+
+  Future<void> toggleCommentLike(String postId, String commentId) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final commentRef = FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId);
+
+    final doc = await commentRef.get();
+    List likes = doc['likes'] ?? [];
+
+    if (likes.contains(userId)) {
+      await commentRef.update({'likes': FieldValue.arrayRemove([userId])});
+    } else {
+      await commentRef.update({'likes': FieldValue.arrayUnion([userId])});
+    }
+  }
+
+  Future<void> toggleReplyLike(String postId, String commentId, String replyId) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final replyRef = FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .collection('replies')
+        .doc(replyId);
+
+    final doc = await replyRef.get();
+    List likes = doc['likes'] ?? [];
+
+    if (likes.contains(userId)) {
+      await replyRef.update({'likes': FieldValue.arrayRemove([userId])});
+    } else {
+      await replyRef.update({'likes': FieldValue.arrayUnion([userId])});
+    }
+  }
+
+
+
 
 
   Future<int> getJoinedCount(String postId) async {

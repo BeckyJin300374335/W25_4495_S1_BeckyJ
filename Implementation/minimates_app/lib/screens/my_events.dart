@@ -61,8 +61,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
     return Scaffold(
       backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: Color(0xFFF9AFA6),
-        elevation: 0,
+        backgroundColor: const Color(0xFFFCF5F3),
+        centerTitle: true,
+        title: Image.asset(
+          'assets/logos/MiniMates_color.png',
+          height: 30,
+        ),
       ),
       body: Column(
         children: [

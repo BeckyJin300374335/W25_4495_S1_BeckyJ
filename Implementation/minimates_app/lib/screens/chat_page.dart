@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:intl/intl.dart';
 
 import '../data/chat_service.dart';
 import '../data/data.dart';
@@ -55,7 +56,7 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       backgroundColor: Color(0xFFFCF5F3),
       appBar: AppBar(
-        backgroundColor: Colors.red,
+        backgroundColor: TColors.primary,
         elevation: 0,
         title: Row(
           children: [
@@ -111,28 +112,49 @@ class _ChatPageState extends State<ChatPage> {
     documentSnapshot.data() as Map<String, dynamic>;
     final isSender = data['senderId'] == _auth.currentUser!.uid;
     final alignment = isSender ? Alignment.centerRight : Alignment.centerLeft;
-    final bgColor = isSender ? Color(0xFFF9AFA6) : Colors.grey.shade300;
+    final bgColor = isSender ? TColors.primary : Colors.grey.shade300;
     final textColor = isSender ? Colors.white : Colors.black87;
+
+    // ✅ Format the timestamp
+    String formattedTime = '';
+    if (data['timestamp'] != null) {
+      final timestamp = (data['timestamp'] as Timestamp).toDate();
+      formattedTime = DateFormat('M/d HH:mm').format(timestamp);
+    }
 
     return Align(
       alignment: alignment,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        margin: EdgeInsets.symmetric(vertical: 6),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16),
-            bottomLeft: Radius.circular(isSender ? 16 : 0),
-            bottomRight: Radius.circular(isSender ? 0 : 16),
+      child: Column(
+        crossAxisAlignment:
+        isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            margin: EdgeInsets.symmetric(vertical: 4),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+                bottomLeft: Radius.circular(isSender ? 16 : 0),
+                bottomRight: Radius.circular(isSender ? 0 : 16),
+              ),
+            ),
+            child: Text(
+              data['content'],
+              style: TextStyle(color: textColor, fontSize: 16),
+            ),
           ),
-        ),
-        child: Text(
-          data['content'],
-          style: TextStyle(color: textColor, fontSize: 16),
-        ),
+          if (formattedTime.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(left: 6, right: 6, bottom: 2),
+              child: Text(
+                formattedTime,
+                style: TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -167,7 +189,7 @@ class _ChatPageState extends State<ChatPage> {
               shape: NeumorphicShape.flat,
               boxShape:
               NeumorphicBoxShape.circle(),
-              color: Color(0xFFF9AFA6),
+              color: TColors.primary,
             ),
             padding: EdgeInsets.all(14),
             child: Icon(Icons.send, color: Colors.white, size: 20),

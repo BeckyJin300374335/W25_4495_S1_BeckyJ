@@ -91,7 +91,7 @@ class _PreferenceSelectionPageState extends State<PreferenceSelectionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Preferences'),
-        backgroundColor: TColors.secondary,
+        backgroundColor: TColors.primary,
       ),
       body: Column(
         children: [
@@ -153,7 +153,7 @@ class _PreferenceSelectionPageState extends State<PreferenceSelectionPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: TColors.secondary,
+                  backgroundColor: TColors.accent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),

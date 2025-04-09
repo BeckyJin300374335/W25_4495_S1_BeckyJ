@@ -26,6 +26,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final password = TextEditingController();
   final passwordConfirm = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -49,36 +51,39 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       body: SafeArea(
           child: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 20,
-            ),
-            image(context),
-
-            textfield_email(userName, _focusNode4,  'UserName', Icons.person_2_outlined),
-            SizedBox(
-              height: 20,
-            ),
-            textfield_email(email, _focusNode1, 'Email', Icons.email),
-            SizedBox(
-              height: 20,
-            ),
-            textfield_email(password, _focusNode2, 'Password', Icons.password),
-            SizedBox(
-              height: 20,
-            ),
-            textfield_email(passwordConfirm, _focusNode3,
-                'PasswordConfirmation', Icons.password),
-            SizedBox(
-              height: 20,
-            ),
-            account(),
-            SizedBox(
-              height: 20,
-            ),
-            Signup_bottom()
-          ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              image(context),
+          
+              textfield_email(userName, _focusNode4,  'UserName', Icons.person_2_outlined),
+              SizedBox(
+                height: 20,
+              ),
+              textfield_email(email, _focusNode1, 'Email', Icons.email),
+              SizedBox(
+                height: 20,
+              ),
+              textfield_email(password, _focusNode2, 'Password', Icons.password),
+              SizedBox(
+                height: 20,
+              ),
+              textfield_email(passwordConfirm, _focusNode3,
+                  'PasswordConfirmation', Icons.password),
+              SizedBox(
+                height: 20,
+              ),
+              account(),
+              SizedBox(
+                height: 20,
+              ),
+              Signup_bottom()
+            ],
+          ),
         ),
       )),
     );
@@ -112,41 +117,50 @@ class _SignupScreenState extends State<SignupScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: GestureDetector(
-        onTap: () async{
-          try {
-            await AuthenticationRemote()
-                .register(userName.text,email.text, password.text, passwordConfirm.text);
+        onTap: () async {
+          if (_formKey.currentState!.validate()) {
+            try {
+              await AuthenticationRemote()
+                  .register(userName.text, email.text, password.text, passwordConfirm.text);
 
-            // ✅ Only navigate to login page if registration is successful
-            Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (BuildContext context) => Auth_Page(),
-            ));
-          } catch (e) {
-            // ✅ Show error if registration fails
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Signup failed: ${e.toString()}")),
-            );
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (BuildContext context) => Auth_Page(),
+              ));
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Signup failed: ${e.toString()}")),
+              );
+            }
           }
-
         },
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
           height: 50,
           decoration: BoxDecoration(
-              color: TColors.secondary, borderRadius: BorderRadius.circular(10)),
+            color: TColors.primary,
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Text(
             'Sign Up',
             style: TextStyle(
-                color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 23,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget textfield_email(TextEditingController _controller,
-      FocusNode _focusNode, String typeName, IconData iconss) {
+
+  Widget textfield_email(
+      TextEditingController controller,
+      FocusNode focusNode,
+      String typeName,
+      IconData icon,
+      ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -154,26 +168,45 @@ class _SignupScreenState extends State<SignupScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: TextField(
-          controller: _controller,
-          focusNode: _focusNode,
+        child: TextFormField( // ⬅️ Use TextFormField instead of TextField
+          controller: controller,
+          focusNode: focusNode,
           style: TextStyle(fontSize: TSizes.fontSizeMd, color: Colors.black),
           decoration: InputDecoration(
-              prefixIcon: Icon(
-                iconss,
-              ),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              hintText: typeName,
-              enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.grey, width: 2.0)),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: TColors.secondary, width: 2.0))),
+            prefixIcon: Icon(icon),
+            contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            hintText: typeName,
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.grey, width: 2.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: TColors.secondary, width: 2.0),
+            ),
+          ),
+          obscureText: typeName.toLowerCase().contains("password"),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return '$typeName is required';
+            }
+
+            if (typeName == 'Password' && value.length < 6) {
+              return 'Password must be at least 6 characters';
+            }
+
+            if (typeName == 'PasswordConfirmation' &&
+                value != password.text) {
+              return 'Passwords do not match';
+            }
+
+            return null;
+          },
         ),
       ),
     );
   }
+
+
 
   Widget image(BuildContext context) {
     return Padding(

@@ -35,6 +35,21 @@ class _DetailsPageState extends State<DetailsPage> {
 
   TextEditingController _commentController = TextEditingController();
 
+  void fixOldComments(String postId) async {
+    final commentsSnapshot = await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .get();
+
+    for (var doc in commentsSnapshot.docs) {
+      if (!doc.data().containsKey('likes')) {
+        await doc.reference.update({'likes': []});
+      }
+    }
+  }
+
+
 
   void _confirmGoing() {
     if (isGoing) return;
@@ -96,6 +111,23 @@ class _DetailsPageState extends State<DetailsPage> {
   //   });
   // }
 
+  void fixOldReplies(String postId, String commentId) async {
+    final replySnapshot = await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .collection('replies')
+        .get();
+
+    for (var doc in replySnapshot.docs) {
+      if (!doc.data().containsKey('likes')) {
+        await doc.reference.update({'likes': []});
+      }
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -105,6 +137,9 @@ class _DetailsPageState extends State<DetailsPage> {
         post = value;
       });
     });
+
+    fixOldComments(widget.postID);
+
   }
 
   void _refreshJoinAndLikeStatus() async {
@@ -124,6 +159,46 @@ class _DetailsPageState extends State<DetailsPage> {
     super.didChangeDependencies();
     _refreshJoinAndLikeStatus();
   }
+
+  void _showReplyDialog(String postId, String commentId) {
+    final replyController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Reply"),
+        content: TextField(
+          controller: replyController,
+          decoration: InputDecoration(hintText: 'Write your reply...'),
+        ),
+        actions: [
+          TextButton(
+            child: Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+          ),
+          ElevatedButton(
+            child: Text("Send"),
+            onPressed: () async {
+              final replyText = replyController.text.trim();
+
+              // Always close the dialog
+              Navigator.pop(context);
+
+              // Save reply only if not empty
+              if (replyText.isNotEmpty) {
+                await Firestore().addReply(
+                  postId: postId,
+                  commentId: commentId,
+                  content: replyText,
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -388,41 +463,56 @@ class _DetailsPageState extends State<DetailsPage> {
                 ],
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
+            StreamBuilder<QuerySnapshot>(
+              stream: Firestore().getComments(widget.postID),
+              builder: (context, snapshot) {
+                final commentCount = snapshot.hasData ? snapshot.data!.docs.length : 0;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _commentController,
-                        decoration: InputDecoration(
-                          hintText: 'Say something...',
-                          prefixIcon: Icon(Icons.emoji_emotions_outlined),
-                          suffixIcon: IconButton(
-                            icon: Icon(Icons.send),
-                            onPressed: () async {
-                              final content = _commentController.text.trim();
-                              if (content.isNotEmpty) {
-                                final isAuthor = FirebaseAuth.instance.currentUser!.uid == widget.userID;
-                                await Firestore().addComment(widget.postID, content, isAuthor);
-                                _commentController.clear();
-                              }
-                            },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Text("$commentCount Comments", style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _commentController,
+                              decoration: InputDecoration(
+                                hintText: 'Say something...',
+                                prefixIcon: Icon(Icons.emoji_emotions_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(Icons.send),
+                                  onPressed: () async {
+                                    final content = _commentController.text.trim();
+                                    if (content.isNotEmpty) {
+                                      final isAuthor = FirebaseAuth.instance.currentUser!.uid == widget.userID;
+                                      await Firestore().addComment(widget.postID, content, isAuthor);
+                                      _commentController.clear();
+                                    }
+                                  },
+                                ),
+                                filled: true,
+                                fillColor: Colors.grey[100],
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
                           ),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
+                );
+              },
             ),
+
             StreamBuilder<QuerySnapshot>(
               stream: Firestore().getComments(widget.postID),
               builder: (context, snapshot) {
@@ -435,41 +525,146 @@ class _DetailsPageState extends State<DetailsPage> {
                   itemCount: comments.length,
                   itemBuilder: (context, index) {
                     final comment = comments[index];
-                    return ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: comment['user_photo'] != null
-                            ? NetworkImage(comment['user_photo'])
-                            : AssetImage('assets/images/profile.jpg') as ImageProvider,
-                      ),
-                      title: Row(
-                        children: [
-                          if (comment['is_author'] == true)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 6.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.red[100],
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text("Author", style: TextStyle(fontSize: 10)),
+                    fixOldReplies(widget.postID, comment.id);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Avatar
+                              CircleAvatar(
+                                backgroundImage: comment['user_photo'] != null
+                                    ? NetworkImage(comment['user_photo'])
+                                    : AssetImage('assets/images/profile.jpg') as ImageProvider,
                               ),
-                            ),
-                        ],
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(comment['content']),
-                          Text(
-                            comment['timestamp'] != null
-                                ? DateFormat('yyyy-MM-dd HH:mm').format((comment['timestamp'] as Timestamp).toDate())
-                                : 'Sending...',
-                            style: TextStyle(fontSize: 8, color: Colors.grey),
+
+                              SizedBox(width: 12),
+
+                              // Comment content
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Name and Author badge
+                                    Row(
+                                      children: [
+                                        Text(comment['user_name'], style: TextStyle(fontSize: 14, color: Colors.grey[800])),
+                                        if (comment['is_author'] == true)
+                                          Padding(
+                                            padding: const EdgeInsets.only(left: 6.0),
+                                            child: Container(
+                                              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red[100],
+                                                borderRadius: BorderRadius.circular(6),
+                                              ),
+                                              child: Text("Author", style: TextStyle(fontSize: 10)),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(comment['content'], style: TextStyle(fontSize: 14)),
+                                    SizedBox(height: 2),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          comment['timestamp'] != null
+                                              ? DateFormat('yyyy-MM-dd HH:mm').format((comment['timestamp'] as Timestamp).toDate())
+                                              : 'Sending...',
+                                          style: TextStyle(fontSize: 11, color: Colors.grey),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => _showReplyDialog(widget.postID, comment.id),
+                                          style: TextButton.styleFrom(
+                                            padding: EdgeInsets.symmetric(horizontal: 6),
+                                            minimumSize: Size(0, 0),
+                                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                          ),
+                                          child: Text("Reply", style: TextStyle(fontSize: 11)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Like Icon + Count
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      (comment['likes'] as List).contains(FirebaseAuth.instance.currentUser!.uid)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: Colors.red,
+                                      size: 20,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    constraints: BoxConstraints(), // remove default height spacing
+                                    onPressed: () => Firestore().toggleCommentLike(widget.postID, comment.id),
+                                  ),
+                                  Text(
+                                    '${(comment['likes'] as List).length}',
+                                    style: TextStyle(fontSize: 10, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+
+
+                        // Replies
+                        Padding(
+                          padding: const EdgeInsets.only(left: 60),
+                          child: StreamBuilder<QuerySnapshot>(
+                            stream: Firestore().getReplies(widget.postID, comment.id), // 👈 getReplies method in Firestore
+                            builder: (context, replySnapshot) {
+                              if (!replySnapshot.hasData) return SizedBox();
+
+                              return Column(
+                                children: replySnapshot.data!.docs.map((replyDoc) {
+                                  final reply = replyDoc.data() as Map<String, dynamic>;
+                                  return ListTile(
+                                    dense: true,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                    leading: CircleAvatar(
+                                      radius: 14,
+                                      backgroundImage: reply['user_photo'] != null
+                                          ? NetworkImage(reply['user_photo'])
+                                          : AssetImage('assets/images/profile.jpg') as ImageProvider,
+                                    ),
+                                    title: Text(reply['user_name'], style: TextStyle(fontSize: 14,color: Colors.grey)),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(reply['content'], style: TextStyle(fontSize: 13, height: 1.2)),
+                                        SizedBox(height: 2),
+                                        Text(
+                                          reply['timestamp'] != null
+                                              ? DateFormat('yyyy-MM-dd HH:mm').format((reply['timestamp'] as Timestamp).toDate())
+                                              : 'Sending...',
+                                          style: TextStyle(fontSize: 10, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+
+                                  );
+                                }).toList(),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     );
+
                   },
                 );
               },

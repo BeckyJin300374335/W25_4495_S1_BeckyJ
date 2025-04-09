@@ -313,7 +313,7 @@ class _AddPostState extends State<AddPost> {
           borderRadius: BorderRadius.circular(15),
           child: (_selectedImage != null)
               ? Image.file(_selectedImage!, width: double.infinity, height: 200, fit: BoxFit.cover)
-              : Image.asset('assets/images/upload_image.png', width: double.infinity, height: 200, fit: BoxFit.cover),
+              : Image.asset('assets/images/upload_image_red.png', width: double.infinity, height: 200, fit: BoxFit.cover),
         ),
         Positioned(
           bottom: 10,

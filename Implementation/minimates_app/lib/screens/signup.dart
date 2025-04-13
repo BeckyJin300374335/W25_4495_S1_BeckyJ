@@ -6,6 +6,7 @@ import 'package:untitled1/utils/constants/colors.dart';
 import 'package:untitled1/utils/constants/sizes.dart';
 
 import '../auth/auth_page.dart';
+import '../auth/main_page.dart';
 
 class SignupScreen extends StatefulWidget {
   final VoidCallback show;
@@ -123,9 +124,12 @@ class _SignupScreenState extends State<SignupScreen> {
               await AuthenticationRemote()
                   .register(userName.text, email.text, password.text, passwordConfirm.text);
 
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (BuildContext context) => Auth_Page(),
-              ));
+              // Navigator.of(context).pushReplacement(MaterialPageRoute(
+              //   builder: (BuildContext context) => Auth_Page(),
+              // ));
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => Main_Page()),
+                      (route) => false);
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Signup failed: ${e.toString()}")),

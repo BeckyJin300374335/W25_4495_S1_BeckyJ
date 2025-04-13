@@ -62,8 +62,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _usernameController.text = userData['userName'] ?? '';
         _ageController.text = userData['age']?.toString() ?? '';
         _emailController.text = userData['email'] ?? '';
-        _selectedGender = userData['gender'] ?? 'Female';
-        _selectedCity = userData['city'] ?? 'Vancouver';
+
+        String gender = userData['gender'] ?? 'Female';
+        if (_genderOptions.contains(gender)) {
+          _selectedGender = gender;
+        } else {
+          _selectedGender = _genderOptions.first;
+        }
+
+        String city = userData['city'] ?? 'Vancouver';
+        if (_bcCities.contains(city)) {
+          _selectedCity = city;
+        } else {
+          _selectedCity = _bcCities.first;
+        }
       });
     } else {
       print("⚠️ getUserProfile returned null");
@@ -86,6 +98,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           age: age,
           gender: _selectedGender,
           city: _selectedCity,
+          profilePicture: profilePictureUrl, // ✅ include this!
         );
       }
     }

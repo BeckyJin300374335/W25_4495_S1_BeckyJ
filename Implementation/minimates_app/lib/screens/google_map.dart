@@ -12,7 +12,7 @@ class GoogleMapFlutter extends StatefulWidget {
 }
 
 class _GoogleMapFlutterState extends State<GoogleMapFlutter> {
-  LatLng myCurrentPosition = const LatLng(40.7128, -74.0060);
+  LatLng myCurrentPosition = const LatLng(49.203568, -122.912689);
   late GoogleMapController mapController;
   late Marker selectedMarker = Marker(
       markerId: MarkerId('Selected Location'), position: myCurrentPosition);

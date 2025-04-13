@@ -109,12 +109,12 @@ class _AuthorDetailsPageState extends State<AuthorDetailsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _actionButton(
-                          label: isFollowing ? 'Following' : 'Follow',
-                          color: isFollowing ? Colors.grey : Color(0xFFF9AFA6),
-                          onPressed: _toggleFollow,
-                        ),
-                        SizedBox(width: 10),
+                        // _actionButton(
+                        //   label: isFollowing ? 'Following' : 'Follow',
+                        //   color: isFollowing ? Colors.grey : Color(0xFFF9AFA6),
+                        //   onPressed: _toggleFollow,
+                        // ),
+                        // SizedBox(width: 10),
                         _actionButton(
                           label: 'Message',
                           color: Color(0xFFFC5C65),

@@ -34,26 +34,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _loadUserProfile();
   }
+
+  @override
+  void didChangeDependencies() {
+    print('dependency change');
+    super.didChangeDependencies();
+    _loadUserProfile(); // This makes sure it's refreshed on rebuild too
+  }
+
   Future<void> _loadUserProfile() async {
     // // ✅ Wait a short moment to ensure FirebaseAuth is fully settled
     // await Future.delayed(Duration(milliseconds: 300));
+    print('load user profile');
 
     final userData = await _firestore.getUserProfile();
     if (userData != null) {
       setState(() {
-        _username = userData['userName'] ?? 'Unnamed';
-        _age = userData['age'] ?? 0; // or cast safely
-        _gender = userData['gender'] ?? 'Unknown';
-        _city = userData['city'] ?? 'Unknown';
-        _email = userData['email'] ?? 'No email';
+        _username = (userData['userName']?.toString().isNotEmpty ?? false)
+            ? userData['userName']
+            : 'Unnamed';
+        _email = (userData['email']?.toString().isNotEmpty ?? false)
+            ? userData['email']
+            : 'No email';
+        _gender = (userData['gender']?.toString().isNotEmpty ?? false)
+            ? userData['gender']
+            : 'Unknown';
+        _city = (userData['city']?.toString().isNotEmpty ?? false)
+            ? userData['city']
+            : 'Unknown';
+        _age = (userData['age']?.toString().isNotEmpty ?? false)
+            ? userData['age']
+            : null;
         _profilePictureUrl = userData['profilePicture'];
       });
     } else {
       print("⚠️ No profile data found");
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: TColors.primary,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(20)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,39 +101,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     children: [
                       Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white, // ✅ White border
-                          width: 2, // ✅ Border width
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white, // ✅ White border
+                            width: 2, // ✅ Border width
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundImage: _profilePictureUrl != null
+                              ? NetworkImage(_profilePictureUrl!)
+                              : AssetImage('assets/images/profile.jpg')
+                                  as ImageProvider,
                         ),
                       ),
-                      child: CircleAvatar(
-                        radius: 40,
-                        backgroundImage: _profilePictureUrl != null
-                            ? NetworkImage(_profilePictureUrl!)
-                            : AssetImage('assets/images/profile.jpg') as ImageProvider,
-                      ),
-                    ),
                       SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             _username,
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
                           ),
                         ],
                       ),
-
                     ],
                   ),
                   IconButton(
                     icon: Icon(Icons.logout, color: Colors.white),
                     onPressed: () {
                       AuthenticationRemote().logout();
-                      Navigator.of(context)
-                          .pushReplacement(MaterialPageRoute(builder: (context) => Auth_Page()));
+                      Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (context) => Main_Page()),
+                          (route) => false);
                     },
                   )
                 ],
@@ -127,90 +149,113 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ProfileRow(title: 'Age', value: _age != null ? _age.toString() : 'Unknown'),
+                  ProfileRow(
+                      title: 'Age',
+                      value: _age != null ? _age.toString() : 'Unknown'),
                   ProfileRow(title: 'Gender', value: _gender),
                   ProfileRow(title: 'City', value: _city),
                   ProfileRow(title: 'Email', value: _email),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
                     ),
                     child: ListTile(
-                      title: const Text('Posts',style: TextStyle(fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      title: const Text('Posts',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          size: 16, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const MyPostsPage()),
-                        );                      },
+                          MaterialPageRoute(
+                              builder: (context) => const MyPostsPage()),
+                        );
+                      },
                     ),
                   ),
 
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
                     ),
                     child: ListTile(
-                      title: const Text('Preferences',style: TextStyle(fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      title: const Text('Preferences',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          size: 16, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PreferenceSelectionPage()),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const PreferenceSelectionPage()),
                         ).then((_) {
-                           // Refresh when returning from preference screen
+                          // Refresh when returning from preference screen
                         });
                       },
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
                     ),
                     child: ListTile(
-                      title: const Text('Policy',style: TextStyle(fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      title: const Text('Policy',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          size: 16, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PolicyPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const PolicyPage()),
                         );
                       },
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade300)),
                     ),
                     child: ListTile(
-                      title: const Text('Contact',style: TextStyle(fontWeight: FontWeight.bold)),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      title: const Text('Contact',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios,
+                          size: 16, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ContactPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const ContactPage()),
                         );
                       },
                     ),
                   ),
-                  ProfileRowWithTrailing(
-                    title: 'Notifications',
-                    trailing: Switch(
-                      value: _notificationsEnabled,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _notificationsEnabled = value;
-                        });
-                      },
-                      activeColor: TColors.primary,
-                    ),
+                  // ProfileRowWithTrailing(
+                  //   title: 'Notifications',
+                  //   trailing: Switch(
+                  //     value: _notificationsEnabled,
+                  //     onChanged: (bool value) {
+                  //       setState(() {
+                  //         _notificationsEnabled = value;
+                  //       });
+                  //     },
+                  //     activeColor: TColors.primary,
+                  //   ),
+                  // ),
+                  SizedBox(
+                    height: 20,
                   ),
-
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {
                         await Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => EditProfileScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => EditProfileScreen()),
                         );
                         _loadUserProfile(); // Reload profile after editing
                       },
@@ -219,11 +264,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                       ),
                       child: Text(
                         'Edit Profile',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),

@@ -20,8 +20,10 @@ void main() async {
 
   // Activate Firebase App Check
   await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider('your-recaptcha-site-key'), // Required for web
-    androidProvider: AndroidProvider.playIntegrity, // Use Play Integrity for Android
+    webProvider:
+        ReCaptchaV3Provider('your-recaptcha-site-key'), // Required for web
+    androidProvider:
+        AndroidProvider.playIntegrity, // Use Play Integrity for Android
     appleProvider: AppleProvider.appAttest, // Use App Attest for iOS
   );
 
@@ -35,23 +37,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NeumorphicApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Minimates App',
-      themeMode: ThemeMode.light,
-      theme: NeumorphicThemeData(
-        baseColor: Color(0xFFFFFFFF),
-        lightSource: LightSource.top,
-        depth: 200,
-      ),
-      // darkTheme: NeumorphicThemeData(
-      //   baseColor: Color(0xFF3E3E3E),
-      //   lightSource: LightSource.top,
-      //   depth: 6,
-      // ),
-      // home: OnBoardingScreen(),
-      // navigatorKey: Get.key,
-      // home:BottomNavBar(),
-        home:Main_Page()
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Minimates App',
+        themeMode: ThemeMode.light,
+        theme: NeumorphicThemeData(
+          baseColor: Color(0xFFFFFFFF),
+          lightSource: LightSource.top,
+          depth: 200,
+        ),
+        // darkTheme: NeumorphicThemeData(
+        //   baseColor: Color(0xFF3E3E3E),
+        //   lightSource: LightSource.top,
+        //   depth: 6,
+        // ),
+        // home: OnBoardingScreen(),
+        // navigatorKey: Get.key,
+        // home:BottomNavBar(),
+        home: Main_Page());
   }
 }

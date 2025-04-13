@@ -102,17 +102,32 @@ class AppUser {
 
   factory AppUser.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-
     return AppUser(
       id: doc.id,
-      userName: data['userName'] ?? "No Title",
-      profilePicture: data['profilePicture'] ?? null,
-      age: data['age'] != null ? int.tryParse(data['age'].toString()) : null,
-      gender: data['gender'] ?? "Unknown",
-      city: data['city'] ?? "Unknown",
+      userName: (data['userName']?.toString().isNotEmpty ?? false)
+          ? data['userName']
+          : 'Unnamed',
+      profilePicture: (data['profilePicture']?.toString().isNotEmpty ?? false)
+          ? data['profilePicture']
+          : null,
+      age:  data['age'] == null? null : (data['age']) as int,
+      gender: (data['gender']?.toString().isNotEmpty ?? false)
+          ? data['gender']
+          : 'Unknown',
+      city: (data['city']?.toString().isNotEmpty ?? false)
+          ? data['city']
+          : 'Unknown',
       preferences: data['preferences'] != null
           ? List<String>.from(data['preferences'])
           : [],
     );
   }
+
+  String intro() {
+    String userName = this.userName;
+    int age = this.age ?? 0;
+    String city = this.city ?? 'Unknown';
+    return '$userName $age lives in $city';
+  }
+
 }

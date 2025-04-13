@@ -19,12 +19,14 @@ class Main_Page extends StatelessWidget {
         body: StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
+              // return new BottomNavBar();
               if (FirebaseAuth.instance.currentUser != null) {
                 return new BottomNavBar();
                 // return HomeScreen();
               } else {
                 // return new BottomNavBar();
-                return OnBoardingScreen();
+                // return OnBoardingScreen();
+                return new Auth_Page();
               }
             }));
   }

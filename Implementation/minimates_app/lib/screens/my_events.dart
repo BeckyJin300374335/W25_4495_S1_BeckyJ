@@ -9,7 +9,6 @@ import '../utils/constants/colors.dart';
 import 'details.dart'; // Import your theme colors
 import 'package:intl/intl.dart';
 
-
 class MyEventsPage extends StatefulWidget {
   @override
   _MyEventsPageState createState() => _MyEventsPageState();
@@ -17,22 +16,34 @@ class MyEventsPage extends StatefulWidget {
 
 class _MyEventsPageState extends State<MyEventsPage> {
   int _selectedFilter = 0;
-  Future<AppUser?>? _cachedUserFuture;
+  String userIntro = '';
+  String userName = '';
+  String? profileImage;
+  final Firestore _firestore = Firestore();
 
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        setState(() {
-          _cachedUserFuture = Firestore().getUserById(user.uid);
-        });
-      } else {
-        setState(() {
-          _cachedUserFuture = null;
-        });
-      }
+    _loadUserProfile();
+  }
+
+
+  Future<void> _loadUserProfile() async {
+    // // ✅ Wait a short moment to ensure FirebaseAuth is fully settled
+    // await Future.delayed(Duration(milliseconds: 300));
+
+    final userData = await _firestore.getMySelf();
+    setState(() {
+      userIntro = userData.intro();
+      userName = userData.userName;
+      profileImage = userData.profilePicture;
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadUserProfile();
   }
 
   Future<List<Post>> _getCurrentList() async {
@@ -41,11 +52,17 @@ class _MyEventsPageState extends State<MyEventsPage> {
     switch (_selectedFilter) {
       case 0:
         posts = await Firestore().joinedPostList();
-        posts = posts.where((post) => post.startTime != null && post.startTime!.isAfter(now)).toList();
+        posts = posts
+            .where((post) =>
+                post.startTime != null && post.startTime!.isAfter(now))
+            .toList();
         break;
       case 1:
         posts = await Firestore().joinedPostList();
-        posts = posts.where((post) => post.startTime != null && post.startTime!.isBefore(now)).toList();
+        posts = posts
+            .where((post) =>
+                post.startTime != null && post.startTime!.isBefore(now))
+            .toList();
         break;
       case 2:
         posts = await Firestore().getCollectedPosts();
@@ -70,7 +87,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
       ),
       body: Column(
         children: [
-          _buildProfileHeader(),
+          // _buildProfileHeader(),
           const SizedBox(height: 10),
           _buildFilterButtons(),
           const SizedBox(height: 10),
@@ -81,80 +98,54 @@ class _MyEventsPageState extends State<MyEventsPage> {
   }
 
   Widget _buildProfileHeader() {
-    if (_cachedUserFuture == null) {
+    if (userName == null) {
       return Padding(
         padding: EdgeInsets.all(20),
         child: Center(child: Text("⚠️ No logged-in user")),
       );
     }
 
-    return FutureBuilder<AppUser?>(
-      future: _cachedUserFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (snapshot.hasError) {
-          return Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: Text("Error loading profile")),
-          );
-        }
-        if (!snapshot.hasData || snapshot.data == null) {
-          return Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: Text("No user data available")),
-          );
-        }
-
-        final user = snapshot.data!;
-
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Color(0xFFF9AFA6),
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xFFF9AFA6),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 2),
+            ),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundImage: profileImage != null
+                  ? NetworkImage(profileImage!)
+                  : AssetImage('assets/images/profile.jpg') as ImageProvider,
+            ),
           ),
-          child: Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundImage: user.profilePicture != null
-                      ? NetworkImage(user.profilePicture!)
-                      : AssetImage('assets/images/profile.jpg') as ImageProvider,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                user.userName,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              Text(
-                "${user.age != null ? '${user.age} years old' : ''} · ${user.city ?? ''}",
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-              Text(
-                user.gender ?? '',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
-              ),
-              SizedBox(height: 12),
-            ],
+          SizedBox(height: 10),
+          Text(
+            userName,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
-        );
-      },
+          Text(
+            userIntro,
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          Text(
+    userIntro,
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          SizedBox(height: 12),
+        ],
+      ),
     );
   }
 
@@ -190,7 +181,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
-            color: _selectedFilter == index ? TColors.accent : Colors.transparent,
+            color:
+                _selectedFilter == index ? TColors.accent : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Center(
@@ -261,7 +253,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
                       : 'No start time',
                   style: TextStyle(color: Colors.white),
                 ),
-
               ],
             ),
           ),
@@ -274,11 +265,18 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(post.title, style: TextStyle(color: Colors.black, fontSize: TSizes.fontSizeMd, fontWeight: FontWeight.bold)),
+                Text(post.title,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: TSizes.fontSizeMd,
+                        fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
                 Text(
                   post.description,
-                  style: TextStyle(color: Colors.black, fontSize: TSizes.fontSizeSm, fontWeight: FontWeight.normal),
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: TSizes.fontSizeSm,
+                      fontWeight: FontWeight.normal),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -288,7 +286,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
                     _eventButton("detail", TColors.accent, post),
                   ],
                 ),
-
               ],
             ),
           ),
@@ -335,7 +332,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
     );
   }
 
-
   void _showCancelDialog(VoidCallback onConfirm) {
     showDialog(
       context: context,
@@ -345,7 +341,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
         title: Container(
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: TColors.secondary,
+            color: TColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Text(
@@ -358,7 +354,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
             textAlign: TextAlign.center,
           ),
         ),
-        content: Text("Are you sure you want to cancel this event?", style: TextStyle(color: TColors.accent, fontSize: 16)),
+        content: Text("Are you sure you want to cancel this event?",
+            style: TextStyle(color: TColors.accent, fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -372,5 +369,4 @@ class _MyEventsPageState extends State<MyEventsPage> {
       ),
     );
   }
-
 }

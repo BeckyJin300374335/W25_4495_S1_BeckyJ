@@ -16,15 +16,23 @@ class Firestore {
 
   Future<bool> createUser(String userName, String email) async {
     try {
-      await _firestore
-          .collection("users")
-          .doc(_auth.currentUser!.uid)
-          .set({"id": _auth.currentUser!.uid, "userName": userName, "email": email});
+      await _firestore.collection("users").doc(_auth.currentUser!.uid).set({
+        "id": _auth.currentUser!.uid,
+        "userName": userName,
+        "email": email,
+        "age": '',
+        "gender": '',
+        "city": '',
+        "profilePicture": '',
+        "preferences": [],
+      });
       return true;
     } catch (e) {
+      print("Error creating user: $e");
       return false;
     }
   }
+
 
   Future<List<Post>> getPostsByUser(String userId) async {
     final snapshot = await _firestore
@@ -181,6 +189,7 @@ class Firestore {
     return snapshot.docs.length;
   }
 
+  //provides a live stream of people who joined an event
   Stream<int> joinedCountStream(String postId) {
     return _firestore
         .collection('users_posts')
@@ -221,18 +230,25 @@ class Firestore {
     required int age,
     required String gender,
     required String city,
+    String? profilePicture, // ✅ add this
   }) async {
     try {
-      await _firestore
-          .collection("users")
-          .doc(_auth.currentUser!.uid)
-          .update({
+      final data = {
         "userName": userName,
         "email": email,
         "age": age,
         "gender": gender,
         "city": city,
-      });
+      };
+
+      if (profilePicture != null) {
+        data["profilePicture"] = profilePicture; // ✅ save it if provided
+      }
+
+      await _firestore
+          .collection("users")
+          .doc(_auth.currentUser!.uid)
+          .update(data);
     } catch (e) {
       print("Error updating user: $e");
     }

@@ -237,7 +237,7 @@ class _EditPostPageState extends State<EditPostPage> {
                 }
               },
               style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFC5C65)),
-              child: const Text("Set Location"),
+              child: const Text("Set Location",style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 10),
             _buildInputField("Address", address, 2),
@@ -247,16 +247,16 @@ class _EditPostPageState extends State<EditPostPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(backgroundColor: TColors.accent),
-                    child: const Text("Cancel"),
+                    style: ElevatedButton.styleFrom(backgroundColor: TColors.primary),
+                    child: const Text("Cancel",style: TextStyle(color: Colors.white)),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _updatePost,
-                    style: ElevatedButton.styleFrom(backgroundColor: TColors.secondary),
-                    child: const Text("Save"),
+                    style: ElevatedButton.styleFrom(backgroundColor: TColors.accent),
+                    child: const Text("Save",style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # MiniMates - A Playdate Platform for Parents
 MiniMates is a Flutter-based mobile application designed to help parents
 effortlessly plan playdates, discover activities, and connect with other parents.

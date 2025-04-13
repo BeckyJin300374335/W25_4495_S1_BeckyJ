@@ -35,12 +35,12 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    markMessagesAsRead(); // ✅ mark all as read when opening
+    markMessagesAsRead(); // mark all as read when opening
   }
   void markMessagesAsRead() async {
-    print('📩 Marking messages as read...');
+    print('Marking messages as read...');
     await _chatService.markMessagesAsRead(widget.receiverUser.id);
-    print('✅ Messages marked as read');
+    print('Messages marked as read');
   }
 
 
@@ -83,8 +83,9 @@ class _ChatPageState extends State<ChatPage> {
     return StreamBuilder(
       stream: _chatService.getMessages(widget.receiverUser.id),
       builder: (context, snapshot) {
+        //checks if the app is still waiting for data from Firebase.
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator()); // loading
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

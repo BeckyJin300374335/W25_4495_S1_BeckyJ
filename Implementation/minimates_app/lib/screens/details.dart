@@ -57,29 +57,49 @@ class _DetailsPageState extends State<DetailsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Confirm Going"),
-        content: Text("Are you sure you want to attend this event?"),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        titlePadding: EdgeInsets.zero,
+        title: Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: TColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Text(
+            "Confirm Going",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        content: Text(
+          "Are you sure you want to attend this event?",
+          style: TextStyle(color: TColors.accent, fontSize: 16),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancel"),
+            child: Text("Cancel", style: TextStyle(color: TColors.accent)),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Firestore().joinEvent(widget.postID).then((doc) {
-                setState(() {
-                  isGoing = true;
-                });
+          TextButton(
+            onPressed: () async {
+              await Firestore().joinEvent(widget.postID);
+              setState(() {
+                isGoing = true;
               });
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFF9AFA6)),
-            child: Text("Yes"),
+            child: Text("Yes", style: TextStyle(color: TColors.accent)),
           ),
         ],
       ),
     );
   }
+
 
   String _formatTimestamp(DateTime? timestamp) {
     if (timestamp == null) return 'Unknown date';
@@ -166,25 +186,46 @@ class _DetailsPageState extends State<DetailsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Reply"),
+        backgroundColor: Colors.white,
+        titlePadding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: TColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Text(
+            "Reply",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
         content: TextField(
           controller: replyController,
-          decoration: InputDecoration(hintText: 'Write your reply...'),
+          decoration: InputDecoration(
+            hintText: 'Write your reply...',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          maxLines: 3,
         ),
         actions: [
           TextButton(
-            child: Text("Cancel"),
             onPressed: () => Navigator.pop(context),
+            child: Text("Cancel", style: TextStyle(color: TColors.accent)),
           ),
-          ElevatedButton(
-            child: Text("Send"),
+          TextButton(
             onPressed: () async {
               final replyText = replyController.text.trim();
-
-              // Always close the dialog
               Navigator.pop(context);
-
-              // Save reply only if not empty
               if (replyText.isNotEmpty) {
                 await Firestore().addReply(
                   postId: postId,
@@ -193,11 +234,13 @@ class _DetailsPageState extends State<DetailsPage> {
                 );
               }
             },
+            child: Text("Send", style: TextStyle(color: TColors.accent)),
           ),
         ],
       ),
     );
   }
+
 
 
   @override
@@ -484,7 +527,7 @@ class _DetailsPageState extends State<DetailsPage> {
                               controller: _commentController,
                               decoration: InputDecoration(
                                 hintText: 'Say something...',
-                                prefixIcon: Icon(Icons.emoji_emotions_outlined),
+
                                 suffixIcon: IconButton(
                                   icon: Icon(Icons.send),
                                   onPressed: () async {

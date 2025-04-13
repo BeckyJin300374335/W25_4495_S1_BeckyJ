@@ -24,7 +24,6 @@ class ChatService extends ChangeNotifier {
       }).toList();
     });
   }
-
   Future<void> sendMessage(String receiverId, String message) async {
     final currentUser = FirebaseAuth.instance.currentUser!;
     final currentUserId = currentUser.uid;
@@ -85,8 +84,6 @@ class ChatService extends ChangeNotifier {
 
     return unreadMessages.length;
   }
-
-
   Future<void> markMessagesAsRead(String receiverId) async {
     final currentUserId = _auth.currentUser!.uid;
     final chatId = _getChatId(currentUserId, receiverId);
@@ -100,7 +97,7 @@ class ChatService extends ChangeNotifier {
 
     for (var doc in unreadMessages.docs) {
       final data = doc.data();
-      // ✅ Check if 'readBy' exists
+      // Check if 'readBy' exists
       final readBy = data.containsKey('readBy')
           ? List<String>.from(data['readBy'])
           : [];
@@ -108,6 +105,7 @@ class ChatService extends ChangeNotifier {
       if (!readBy.contains(currentUserId)) {
         await doc.reference.update({
           'readBy': FieldValue.arrayUnion([currentUserId]),
+          //A Firestore function that adds values to an array only if they’re not already in it (to prevent duplicates)
         });
       }
     }

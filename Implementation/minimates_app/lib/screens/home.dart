@@ -69,13 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final userData = await _firestore.getUserProfile();
     if (userData != null) {
       setState(() {
-        _username = userData['userName'] ?? '';
-        _age = userData['age'] ?? '';
-        _gender = userData['gender'] ?? '';
-        _city = userData['city'] ?? '';
-        _email = userData['email'] ?? '';
+        _username = (userData['userName']?.toString().isNotEmpty ?? false) ? userData['userName'] : 'Unnamed';
+        _email = (userData['email']?.toString().isNotEmpty ?? false) ? userData['email'] : 'No email';
+        _gender = (userData['gender']?.toString().isNotEmpty ?? false) ? userData['gender'] : 'Unknown';
+        _city = (userData['city']?.toString().isNotEmpty ?? false) ? userData['city'] : 'Unknown';
+        _age = (userData['age']?.toString().isNotEmpty ?? false) ? userData['age'] : null;
         _profilePictureUrl = userData['profilePicture'];
       });
+
 
       if (userData.containsKey('preferences') && userData['preferences'].isNotEmpty) {
         callGeminiModel();
@@ -108,8 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       children: [
                         GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProfileScreen()));
+                          onTap: () async {
+                            await Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProfileScreen()));
+                            await _loadUserProfile(); // ✅ Reload user data after returning
                           },
                           child: CircleAvatar(
                             radius: 30,
@@ -485,7 +487,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final postListJson = postList.map((post) => post.toMap()).toList();
     final preferenceJson = user.preferences;
     final prompt =
-        "I have a list of posts in JSON format: $postListJson and my preference tags are $preferenceJson. Please recommend the posts that I like and output their ID in a list only";
+        "I have a list of posts in JSON format: $postListJson and my preference tags are "
+        "$preferenceJson. Please recommend the posts that I like and output their ID in a list only";
 
     final response = await model.generateContent([Content.text(prompt)]);
     final text = response.text ?? "";

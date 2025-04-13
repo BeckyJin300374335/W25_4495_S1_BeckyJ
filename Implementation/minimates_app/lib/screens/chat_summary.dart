@@ -15,6 +15,7 @@ class ChatSummary {
     required this.lastTimestamp,
   });
 
+  //Factory Constructor from Firestore, convert a Firestore document into a ChatSummary object.
   factory ChatSummary.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ChatSummary(

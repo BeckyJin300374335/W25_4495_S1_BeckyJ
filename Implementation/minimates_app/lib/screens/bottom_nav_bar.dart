@@ -26,16 +26,13 @@ class _BottomNavBarState extends State<BottomNavBar> {
   ];
 
   void _onItemTapped(int index) {
-    if (index == 1) {
-      // Ensure no back arrow when accessed from BottomNavBar
-      setState(() {
-        _selectedIndex = index;
-      });
-    } else {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
+    // Ensure no back arrow when accessed from BottomNavBar
+    setState(() {
+      _selectedIndex = index;
+      if (index == 3) {
+        _pages[3] = new MyEventsPage();
+      }
+    });
   }
 
   // @override

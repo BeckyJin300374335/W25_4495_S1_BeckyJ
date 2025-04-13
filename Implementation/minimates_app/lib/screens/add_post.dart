@@ -41,6 +41,29 @@ class _AddPostState extends State<AddPost> {
   void initState() {
     super.initState();
   }
+  void _showValidationError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: TColors.primary,
+      ),
+    );
+  }
+
+  void _clearForm() {
+    title.clear();
+    desc.clear();
+    address.clear();
+    _selectedImage = null;
+    selectedFilters.clear();
+    _startTime = null;
+    _endTime = null;
+    longitude = null;
+    latitude = null;
+    setState(() {}); // 🔁 refresh UI
+  }
+
+
 
   showDateRangePicker() async {
     List<DateTime>? dateTimeList = await showOmniDateTimeRangePicker(
@@ -91,7 +114,7 @@ class _AddPostState extends State<AddPost> {
         title: Container(
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: TColors.secondary,
+            color: TColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Text(
@@ -104,17 +127,18 @@ class _AddPostState extends State<AddPost> {
             textAlign: TextAlign.center,
           ),
         ),
-        content: Text("Discard this post?", style: TextStyle(color: TColors.accent, fontSize: 16)),
+        content: Text("Discard this post?", style: TextStyle(color: Colors.black, fontSize: 16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("No", style: TextStyle(color: TColors.accent)),
+            child: Text("No", style: TextStyle(color: Colors.black)),
           ),
           TextButton(
             onPressed: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
+              _clearForm();              // Clear all input fields and selections
+              Navigator.pop(context);    // Close the dialog
             },
-            child: Text("Yes", style: TextStyle(color: TColors.accent)),
+            child: Text("Yes", style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
@@ -344,6 +368,7 @@ class _AddPostState extends State<AddPost> {
           SizedBox(
             child: ElevatedButton(
               onPressed: () {
+
                 _showCancelDialog();
               },
               style: ElevatedButton.styleFrom(
@@ -356,26 +381,52 @@ class _AddPostState extends State<AddPost> {
           SizedBox(
             child: ElevatedButton(
               onPressed: () {
-                if (_selectedImage != null && _startTime != null && _endTime != null) {
-                  Firestore().addPost(
-                    title.text,
-                    desc.text,
-                    _selectedImage!,
-                    selectedFilters.toList(),
-                    latitude!,
-                    longitude!,
-                    address.text,
-                    1,
-                    _startTime!,
-                    _endTime!,
-                  );
+                if (title.text.trim().isEmpty) {
+                  _showValidationError("Title is required.");
+                  return;
                 }
+                if (desc.text.trim().isEmpty) {
+                  _showValidationError("Description is required.");
+                  return;
+                }
+                if (_startTime == null || _endTime == null) {
+                  _showValidationError("Please select start and end time.");
+                  return;
+                }
+                if (_selectedImage == null) {
+                  _showValidationError("Please upload an image.");
+                  return;
+                }
+                if (selectedFilters.isEmpty) {
+                  _showValidationError("Please select at least one tag.");
+                  return;
+                }
+                if (latitude == null || longitude == null || address.text.trim().isEmpty) {
+                  _showValidationError("Please set a location.");
+                  return;
+                }
+
+                // ✅ All good, proceed to add post
+                Firestore().addPost(
+                  title.text.trim(),
+                  desc.text.trim(),
+                  _selectedImage!,
+                  selectedFilters.toList(),
+                  latitude!,
+                  longitude!,
+                  address.text.trim(),
+                  1,
+                  _startTime!,
+                  _endTime!,
+                );
+
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (BuildContext context) => BottomNavBar(),
                 ));
               },
+
               style: ElevatedButton.styleFrom(
-                backgroundColor: TColors.secondary,
+                backgroundColor: TColors.accent,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               ),
